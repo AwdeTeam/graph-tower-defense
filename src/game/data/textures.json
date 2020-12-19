@@ -1,0 +1,9 @@
+{
+    "contTower": "tower_control.png",
+    "wallTower": "tower_basic.png",
+    "storTower": "tower_basic.png",
+    "watcTower": "tower_basic.png",
+    "drilTower": "tower_basic.png",
+    "gunTower": "tower_basic.png",
+    "basicUnit": "tower_basic.png"
+}
