@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/AwdeTeam/graph-tower-defense#readme",
   "devDependencies": {
+    "@types/jquery": "^3.5.5",
     "sass": "^1.30.0",
     "ts-loader": "^8.0.12",
     "typescript": "^4.1.3",
@@ -35,6 +36,7 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
+    "jquery": "^3.5.1",
     "npm-watch": "^0.7.0"
   }
 }
