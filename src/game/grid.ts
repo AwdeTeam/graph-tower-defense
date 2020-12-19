@@ -14,7 +14,7 @@
 
 import * as ex from "excalibur"
 
-export class Grid extends ex.ScreenElement {
+export class Grid extends ex.Actor {
 
 	// array of squares
 	squares: GridSquare[][]
@@ -55,7 +55,7 @@ export class Grid extends ex.ScreenElement {
 	
 }
 
-export class GridSquare extends ex.ScreenElement { 
+export class GridSquare extends ex.Actor { 
 	x: number
 	y: number
 	gridSize: number
@@ -70,5 +70,4 @@ export class GridSquare extends ex.ScreenElement {
 	draw(ctx: CanvasRect, delta: number) {
 		ctx.strokeRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
 	}
-	
 }
