@@ -31,19 +31,21 @@ export enum ResType{
 
 export interface UnitCallbacks {
     loadTexture: (type: UnitType) => ex.Texture
-    placeOnGrid: (gridX: number, gridY: number) => ex.ActorArgs
+    placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
 }
 
 export class Unit extends ex.Actor {
     public type: UnitType
     public health: number
+    public gridPosition: ex.Vector
     protected callbacks: UnitCallbacks
 
     constructor(
-            gridX: number, gridY: number,
+            gridPosition: ex.Vector,
             type: UnitType,
             callbacks: UnitCallbacks) {
-        super(callbacks.placeOnGrid(gridX, gridY))
+        super(callbacks.placeOnGrid(gridPosition))
+        this.gridPosition = gridPosition
         this.type = type
         this.callbacks = callbacks
     }
@@ -54,7 +56,7 @@ export class Unit extends ex.Actor {
 }
 
 export interface CombatUnitCallbacks {
-    findNearestOwned: (gridX: number, gridY: number, ownerID: number) => Unit
+    findNearestOwned: (gridPosition: ex.Vector, ownerID: number) => Unit
 }
 
 export class CombatUnit extends Unit {
@@ -65,5 +67,32 @@ export class CombatUnit extends Unit {
 }
 
 export interface MobileUnitCallbacks {
-    
+    getGridCellPos: (globalPosition: ex.Vector) => ex.Vector
+}
+
+export class MobileCombatUnit extends CombatUnit {
+    public speed: number
+    private static tolerance: 5 // Number of pixels we can be from the center to stop moving
+    protected gridPathTarget: ex.Vector
+    protected mobileCallbacks: MobileUnitCallbacks
+
+    constructor(
+        gridPosition: ex.Vector,
+        type: UnitType,
+        callbacks: UnitCallbacks,
+        mobileCallbacks: MobileUnitCallbacks
+    ) {
+        super(gridPosition, type, callbacks)
+        this.mobileCallbacks = mobileCallbacks
+    }
+
+    public onPostUpdate() {
+        let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
+        let path = targ.sub(this.pos)
+        if (path.magnitude() > MobileCombatUnit.tolerance) {
+            this.vel = path.normalize().scale(this.speed)
+        } else {
+            this.vel = new ex.Vector(0, 0)
+        }
+    }
 }
