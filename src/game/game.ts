@@ -16,6 +16,7 @@ import * as ex from "excalibur"
 
 import {Grid} from "./grid"
 import {Player} from "./player"
+import {Grid, TerrainGenerators} from "./grid"
 
 const defaultConfig = {
     display: {
@@ -51,7 +52,8 @@ export class Game {
         this.grid = new Grid(
             this.config.game.grid.width,
             this.config.game.grid.height,
-            this.config.game.grid.squareSize
+            this.config.game.grid.squareSize,
+            TerrainGenerators.random
         )
 		this.engine.add(this.grid)
     }
