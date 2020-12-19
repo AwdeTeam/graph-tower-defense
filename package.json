@@ -36,6 +36,7 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
+    "excalibur": "^0.24.5",
     "jquery": "^3.5.1",
     "npm-watch": "^0.7.0"
   }

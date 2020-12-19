@@ -14,9 +14,12 @@
 
 import * as $ from "jquery"
 
+import {Game} from "./game/game"
+
 class MainApp {
     applicationSection: JQuery<HTMLElement>
     gameCanvas: JQuery<HTMLCanvasElement>
+    game: Game
     
     constructor () {
         this.applicationSection = $("#game")
@@ -32,7 +35,11 @@ class MainApp {
     }
 
     setupGame () {
-        // TODO Make the game
+        this.game = new Game(this.gameCanvas[0])
+    }
+
+    start () {
+        this.game.start()
     }
 
     async render () {
@@ -40,6 +47,7 @@ class MainApp {
         this.clean()
         this.setupGame()
         this.build()
+        this.start()
     }
 }
 
