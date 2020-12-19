@@ -14,6 +14,7 @@
 
 import * as ex from "excalibur"
 
+import {Player} from "./player"
 import {Grid, TerrainGenerators} from "./grid"
 
 const defaultConfig = {
@@ -36,6 +37,8 @@ export class Game {
     assets: ex.Loader
     canvas: HTMLCanvasElement
 	grid: Grid
+	activePlayer: Player
+	aiPlayer: Player
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
@@ -46,12 +49,13 @@ export class Game {
             height: this.config.display.height,
             canvasElement: this.canvas,
         })
+		this.activePlayer = new Player(0, "user")
         this.grid = new Grid(
             this.config.game.grid.width,
             this.config.game.grid.height,
             this.config.game.grid.squareSize,
-            TerrainGenerators.random,
-            {getFogOfWar: () => { return [[]]; }}
+            TerrainGenerators.random, 
+			{ getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this) }
         )
 		this.engine.add(this.grid)
     }
@@ -60,4 +64,14 @@ export class Game {
         console.log("Starting game")
         this.engine.start(this.assets)
     }
+
+
+	getActiveVisibleCoordinates(x: number, y: number): boolean
+	{
+		for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
+			let square = this.activePlayer.visibleCoordinates[i]
+			if (square[0] == x && square[1] == y) { return true; }
+		}
+		return false
+	}
 }

@@ -17,7 +17,7 @@ import * as ex from "excalibur"
 import * as terrains from "./data/terrains.json"
 
 export interface GridCallbacks {
-    getFogOfWar: () => number[][]
+    getActiveVisibleCoordinates: (x: number, y: number) => boolean
 }
 
 export class Grid extends ex.Actor {
@@ -49,7 +49,7 @@ export class Grid extends ex.Actor {
 			this.squares[x] = []
 			for (let y = 0; y < this.sizeY; y++)
 			{
-				let gridSquare: GridSquare = new GridSquare(x, y, this.gridSize)
+				let gridSquare: GridSquare = new GridSquare(x, y, this.gridSize, this.callbacks)
                 gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
 				this.squares[x][y] = gridSquare
 			}
@@ -72,16 +72,22 @@ export class GridSquare extends ex.Actor {
 	y: number
 	gridSize: number
     terrain: Terrain
+	callbacks: GridCallbacks
 	
-	constructor(x: number, y: number, gridSize: number) {
+	constructor(x: number, y: number, gridSize: number, callbacks: GridCallbacks) {
 		super({x: x, y: y, width: gridSize, height: gridSize})
 		this.x = x
 		this.y = y
 		this.gridSize = gridSize
+		this.callbacks = callbacks
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
-        if (this.terrain) {
+		if (!this.callbacks.getActiveVisibleCoordinates(this.x, this.y)) {
+			ctx.fillStyle = "#222"
+			ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
+		}
+		else if (this.terrain) {
             ctx.fillStyle = this.terrain.backgroundColorHexString
             ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
         }
