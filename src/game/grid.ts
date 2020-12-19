@@ -14,6 +14,8 @@
 
 import * as ex from "excalibur"
 
+import * as terrains from "./data/terrains.json"
+
 export class Grid extends ex.Actor {
 
 	// array of squares
@@ -21,13 +23,16 @@ export class Grid extends ex.Actor {
 	sizeX: number
 	sizeY: number
 	gridSize: number
+    terrainGenerator: (square: GridSquare) => TerrainType
 	
-	constructor(sizeX: number, sizeY: number, gridSize: number) {
+    constructor(sizeX: number, sizeY: number, gridSize: number,
+        terrainGenerator: (square: GridSquare) => TerrainType) {
 		super({ x: 0, y: 0 })
 		this.sizeX = sizeX
 		this.sizeY = sizeY
 		this.gridSize = gridSize
 		this.squares = []
+        this.terrainGenerator = terrainGenerator
 	}
 
 	onInitialize() {
@@ -37,8 +42,9 @@ export class Grid extends ex.Actor {
 			this.squares[x] = []
 			for (let y = 0; y < this.sizeY; y++)
 			{
-				let gs = new GridSquare(x, y, this.gridSize)
-				this.squares[x][y] = gs
+				let gridSquare: GridSquare = new GridSquare(x, y, this.gridSize)
+                gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
+				this.squares[x][y] = gridSquare
 			}
 		}
 	}
@@ -59,6 +65,7 @@ export class GridSquare extends ex.Actor {
 	x: number
 	y: number
 	gridSize: number
+    terrain: Terrain
 	
 	constructor(x: number, y: number, gridSize: number) {
 		super({x: x, y: y, width: gridSize, height: gridSize})
@@ -67,7 +74,39 @@ export class GridSquare extends ex.Actor {
 		this.gridSize = gridSize
 	}
 
-	draw(ctx: CanvasRect, delta: number) {
+	draw(ctx: CanvasRenderingContext2D, delta: number) {
+        if (this.terrain) {
+            ctx.fillStyle = this.terrain.backgroundColorHexString
+            ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
+        }
 		ctx.strokeRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
 	}
+}
+
+interface TerrainType {
+    backgroundColorHexString: string
+    movementCost: number
+    elevation: number
+}
+
+export class Terrain {
+    backgroundColorHexString: string
+    movementCost: number
+    elevation: number
+
+    constructor(terrain: TerrainType) {
+        this.backgroundColorHexString = terrain.backgroundColorHexString
+        this.movementCost = terrain.movementCost
+        this.elevation  = terrain.elevation
+    }
+}
+
+export const TerrainGenerators = {
+    allFlat: (square: GridSquare): TerrainType => { return <TerrainType> terrains.flat },
+    random: (square: GridSquare): TerrainType => {
+        if (Math.random() > 0.5) {
+            return <TerrainType> terrains.flat
+        }
+        return <TerrainType> terrains.hill
+    }
 }
