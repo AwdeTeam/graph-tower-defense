@@ -15,7 +15,7 @@
   "scripts": {
     "watch": "npm-watch dev",
     "build": "webpack --mode production",
-    "dev": "webpack --mode development"
+    "dev": "./updateassets.sh && webpack --mode development"
   },
   "repository": {
     "type": "git",

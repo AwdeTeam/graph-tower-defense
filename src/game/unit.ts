@@ -42,11 +42,9 @@ class Unit extends ex.Actor{
         this.type = type;
     }
 
-    findNearestEnemy(grid: Grid){
-        
+    findNearestOwned(grid: Grid, owner: number): Unit {
+        return null
     }
-
-
 }
 
 interface TowerType{
