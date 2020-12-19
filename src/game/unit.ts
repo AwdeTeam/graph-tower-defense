@@ -13,7 +13,7 @@
  *    Alex L.
  */
 import * as ex from "excalibur"
-import { GridSquare } from "./grid"
+import { GridSquare, Grid } from "./grid"
 
 enum UnitType {
     contTower = 0,
@@ -41,6 +41,26 @@ class Unit extends ex.Actor{
         super({x: x, y: y, width: gridSize, height: gridSize})
         this.type = type;
     }
+
+    findNearestEnemy(grid: Grid){
+        
+    }
+
+
+}
+
+interface TowerType{
+    sprite: string
+    consumes: ResType
+    conAmount: number
+    produces: ResType
+    proAmount: number
+    stores: ResType
+    stoAmount: number
+    health: number
+    damage: number
+    range: number
+    attRate:number
 }
 
 export class GridTower extends Unit{
