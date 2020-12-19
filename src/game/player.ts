@@ -22,6 +22,11 @@ interface MockTower {
 
 }
 
+enum MouseState{
+    none=0,
+    spawnRat=0
+}
+
 export class Player extends ex.Actor {
     id: number
     name: string
