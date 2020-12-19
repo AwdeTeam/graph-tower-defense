@@ -1,0 +1,67 @@
+{
+    "control":{
+        "sprite": "control_tower.png",
+        "consumes": 0,
+        "conAmount": 0,
+        "produces": 0,
+        "proAmount": 0,
+        "stores": 0,
+        "stoAmount": 0,
+        "health": 250,
+        "damage": 0,
+        "range": 4,
+        "attRate": 0
+    },
+    "wall":{
+        "sprite": "wall_tower.png",
+        "consumes": 0,
+        "conAmount": 0,
+        "produces": 0,
+        "proAmount": 0,
+        "stores": 0,
+        "stoAmount": 0,
+        "health": 500,
+        "damage": 0,
+        "range": 0,
+        "attRate": 0
+    },
+    "storage":{
+        "sprite": "storage_tower.png",
+        "consumes": 0,
+        "conAmount": 0,
+        "produces": 0,
+        "proAmount": 0,
+        "stores": 0,
+        "stoAmount": 200,
+        "health": 100,
+        "damage": 0,
+        "range": 0,
+        "attRate": 0
+    },
+    "watch":{
+        "sprite": "watch_tower.png",
+        "consumes": 0,
+        "conAmount": 0,
+        "produces": 0,
+        "proAmount": 0,
+        "stores": 0,
+        "stoAmount": 0,
+        "health": 100,
+        "damage": 0,
+        "range": 5,
+        "attRate": 0
+    },
+    "drill":{
+        "sprite": "drill_tower.png",
+        "consumes": 0,
+        "conAmount": 0,
+        "produces": 0,
+        "proAmount": 2,
+        "stores": 0,
+        "stoAmount": 20,
+        "health": 100,
+        "damage": 0,
+        "range": 0,
+        "attRate": 0
+    }
+}
