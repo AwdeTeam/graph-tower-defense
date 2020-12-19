@@ -16,6 +16,10 @@ import * as ex from "excalibur"
 
 import * as terrains from "./data/terrains.json"
 
+export interface GridCallbacks {
+    getFogOfWar: () => number[][]
+}
+
 export class Grid extends ex.Actor {
 
 	// array of squares
@@ -24,15 +28,18 @@ export class Grid extends ex.Actor {
 	sizeY: number
 	gridSize: number
     terrainGenerator: (square: GridSquare) => TerrainType
+    callbacks: GridCallbacks
 	
     constructor(sizeX: number, sizeY: number, gridSize: number,
-        terrainGenerator: (square: GridSquare) => TerrainType) {
+        terrainGenerator: (square: GridSquare) => TerrainType,
+        callbacks: GridCallbacks) {
 		super({ x: 0, y: 0 })
 		this.sizeX = sizeX
 		this.sizeY = sizeY
 		this.gridSize = gridSize
 		this.squares = []
         this.terrainGenerator = terrainGenerator
+        this.callbacks = callbacks
 	}
 
 	onInitialize() {
@@ -58,7 +65,6 @@ export class Grid extends ex.Actor {
 			}
 		}
 	}
-	
 }
 
 export class GridSquare extends ex.Actor { 
