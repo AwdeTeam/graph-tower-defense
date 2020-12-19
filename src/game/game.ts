@@ -16,6 +16,7 @@ import * as ex from "excalibur"
 
 import {Player} from "./player"
 import {Grid, TerrainGenerators} from "./grid"
+import {Resources} from "./resources"
 
 const defaultConfig = {
     display: {
@@ -39,6 +40,7 @@ export class Game {
 	grid: Grid
 	activePlayer: Player
 	aiPlayer: Player
+	resources: Resources
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
@@ -58,11 +60,18 @@ export class Game {
 			{ getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this) }
         )
 		this.engine.add(this.grid)
+
+
+		// loop through dictionary and add to loader
+		this.resources = new Resources()
+		this.resources.addResources(this.assets)
     }
 
     start() {
         console.log("Starting game")
-        this.engine.start(this.assets)
+        this.engine.start(this.assets).then(function () {
+			this.resources.sounds["baseSound"].play()
+		})
     }
 
 
