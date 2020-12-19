@@ -10,7 +10,7 @@
  * **Author**
  *    Alex L.
  */
-import {ResType, Unit, UnitType} from "./unit"
+import {ResType, Unit, UnitCallbacks, UnitType} from "./unit"
 import {GridSquare } from "./grid"
 import * as towers from "./data/towers.json"
 
@@ -30,6 +30,7 @@ export class GridTower extends Unit{
     public consumeRes: ResType
     public consAmount: number
 
+    public range: number
     public produceRes: ResType
     public prodAmount: number
 
@@ -39,8 +40,8 @@ export class GridTower extends Unit{
 
     public sprite: string
 
-    constructor(x: number, y: number, type: number, gridSize: number, gridSlot: GridSquare){
-        super(x,y, type, gridSize)
+    constructor(gridX: number, gridY: number, type: UnitType, callbacks: UnitCallbacks){
+        super(gridX,gridY, type, callbacks)
         let protoTower
         switch(this.type){
             case UnitType.contTower: {
