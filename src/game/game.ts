@@ -33,6 +33,7 @@ const defaultConfig = {
 export class Game {
     config: any
     engine: ex.Engine
+    assets: ex.Loader
     canvas: HTMLCanvasElement
 	grid: Grid
 
@@ -57,6 +58,6 @@ export class Game {
 
     start() {
         console.log("Starting game")
-        this.engine.start()
+        this.engine.start(this.assets)
     }
 }
