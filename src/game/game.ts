@@ -23,8 +23,8 @@ const defaultConfig = {
     },
     game: {
         grid: {
-            width: 10,
-            height: 10,
+            width: 16,
+            height: 12,
             squareSize: 50,
         },
     }
@@ -49,7 +49,8 @@ export class Game {
             this.config.game.grid.width,
             this.config.game.grid.height,
             this.config.game.grid.squareSize,
-            TerrainGenerators.random
+            TerrainGenerators.random,
+            {getFogOfWar: () => { return [[]]; }}
         )
 		this.engine.add(this.grid)
     }
