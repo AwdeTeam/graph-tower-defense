@@ -10,10 +10,9 @@
  * **Author**
  *    Alex L.
  */
-import * as ex from "excalibur"
 import {ResType, Unit, UnitType} from "./unit"
 import {GridSquare } from "./grid"
-
+import * as towers from "./data/towers.json"
 
 interface TowerType{
     sprite: string
@@ -39,95 +38,54 @@ export class GridTower extends Unit{
     public stores: ResType
     public stoAmount: number
 
+    public sprite: string
+
     constructor(x: number, y: number, type: number, gridSize: number, gridSlot: GridSquare){
         super(x,y, type, gridSize);
+        let protoTower;
         switch(this.type){
             case UnitType.contTower: {
-                this.health = 250;
-                this.damage = 0;
-                this.range = 4;
-                this.attRate = 0;
-
-                this.consumes = ResType.none;
-                this.conAmount = 0;
-
-                this.produces = ResType.none;
-                this.proAmount = 0;
-
-                this.stores = ResType.none;
-                this.stoAmount = 0;
+                protoTower = <TowerType>towers.control;
                 break;
             }
             case UnitType.wallTower: {
-                this.health = 500;
-                this.damage = 0;
-                this.range = 0;
-                this.attRate = 0;
-
-                this.consumes = ResType.none;
-                this.conAmount = 0;
-
-                this.produces = ResType.none;
-                this.proAmount = 0;
-
-                this.stores = ResType.none;
-                this.stoAmount = 0;
+                protoTower = <TowerType>towers.wall;
                 break;
             }
             //storTower needs to be informed what to store
             case UnitType.storTower: {
-                this.health = 100;
-                this.damage = 0;
-                this.range = 0;
-                this.attRate = 0;
-
-                this.consumes = ResType.none;
-                this.conAmount = 0;
-
-                this.produces = ResType.none;
-                this.proAmount = 0;
-
-                this.stores = ResType.iron;
-                this.stoAmount = 200;
+                protoTower = <TowerType>towers.storage;
                 break;
             }
             case UnitType.watcTower: {
-                this.health = 100;
-                this.damage = 0;
-                this.range = 5;
-                this.attRate = 0;
-
-                this.consumes = ResType.none;
-                this.conAmount = 0;
-
-                this.produces = ResType.none;
-                this.proAmount = 0;
-
-                this.stores = ResType.none;
-                this.stoAmount = 0;
+                protoTower = <TowerType>towers.watch;
                 break;
             }
             //drilTower needs to be informed what its producing
             case UnitType.drilTower: {
-                this.health = 100;
-                this.damage = 0;
-                this.range = 0;
-                this.attRate = 0;
-
-                this.consumes = ResType.none;
-                this.conAmount = 0;
-                
-                this.produces = ResType.iron;
-                this.proAmount = 2;
-
-                this.stores = ResType.iron;
-                this.stoAmount = 20;
+                protoTower = <TowerType>towers.drill;
                 break;
             }
             default: {
                 alert("Error: Unknown tower type passed into GridTower constructor.")
                 break;
             }
+        }
+        this.sprite = protoTower.sprite;
+        this.consumes = protoTower.consumes;
+        this.conAmount = protoTower.conAmount;
+        this.produces = protoTower.produces;
+        this.proAmount = protoTower.proAmount;
+        this.stores = protoTower.stores;
+        this.stoAmount = protoTower.stoAmount;
+        this.health = protoTower.health;
+        this.damage = protoTower.damage;
+        this.range = protoTower.range;
+        this.attRate = protoTower.attRate;
+        if(type == UnitType.drilTower){
+            //checks given GridSquare to determine resource to produce
+        }else if(type == UnitType.storTower){
+            //ask player what to store
         }
     }
 
