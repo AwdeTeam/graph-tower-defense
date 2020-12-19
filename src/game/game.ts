@@ -25,6 +25,7 @@ export class Game {
     config: any
     engine: ex.Engine
     canvas: HTMLCanvasElement
+	grid: Grid
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
@@ -35,6 +36,8 @@ export class Game {
             height: this.config.display.height,
             canvasElement: this.canvas,
         })
+		this.grid = new Grid(this, 10, 10, 50)
+		this.engine.add(this.grid)
     }
 
     start() {
@@ -47,40 +50,58 @@ export class Grid extends ex.ScreenElement {
 
 	// array of squares
 	squares: GridSquare[][]
-	size_x: number
-	size_y: number
+	sizeX: number
+	sizeY: number
+	gridSize: number
 	
-	constructor(game: Game, size_x: number, size_y: number) {
-		this.size_x = size_x
-		this.size_y = size_y
-		
+	constructor(game: Game, sizeX: number, sizeY: number, gridSize: number) {
+		super({ x: 0, y: 0 })
+		this.sizeX = sizeX
+		this.sizeY = sizeY
+		this.gridSize = gridSize
+		this.squares = []
 	}
 
 	onInitialize() {
 		// create list of gridsquares
-		for (let x = 0; x < this.size_x; x++)
+		for (let x = 0; x < this.sizeX; x++)
 		{
-			for (let y = 0; y < this.size_y; y++)
+			this.squares[x] = []
+			for (let y = 0; y < this.sizeY; y++)
 			{
-				let gs = GridSquare(x, y)
+				let gs = new GridSquare(x, y, this.gridSize)
+				this.squares[x][y] = gs
 			}
 		}
 	}
 
-	draw(ctx, delta) {
-
+	draw(ctx: CanvasRenderingContext2D, delta: number) {
+		for (let x = 0; x < this.sizeX; x++)
+		{
+			for (let y = 0; y < this.sizeY; y++) 
+			{
+				this.squares[x][y].draw(ctx, delta)
+			}
+		}
 	}
 	
 }
 
-export class GridSquare { 
+export class GridSquare extends ex.ScreenElement { 
 	x: number
 	y: number
-	entities: ??[]
+	gridSize: number
+	//entities: ??[]
 	
-	constructor(x: number, y: number) {
-		self.x = x
-		self.y = y
+	constructor(x: number, y: number, gridSize: number) {
+		super({x: x, y: y, width: gridSize, height: gridSize})
+		this.x = x
+		this.y = y
+		this.gridSize = gridSize
+	}
+
+	draw(ctx: CanvasRect, delta: number) {
+		ctx.strokeRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
 	}
 	
 }
