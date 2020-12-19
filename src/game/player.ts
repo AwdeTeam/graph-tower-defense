@@ -27,7 +27,7 @@ export class Player extends ex.Actor {
     name: string
     resources: ResourceCollection
     ownedTowers: MockTower[]
-	fogOfWar: [number[]]
+	visibleCoordinates: [number, number][]
 
     constructor (id: number, name: string) {
         super()
@@ -37,7 +37,7 @@ export class Player extends ex.Actor {
         this.resources = {
             mana: 0,
         }
-		this.fogOfWar = [[0, 0]]
+		this.visibleCoordinates = [[0, 0], [0, 1], [1, 0]]
     }
 
     public onPreUpdate(engine: ex.Engine, delta: number) {
