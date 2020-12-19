@@ -15,6 +15,7 @@
 import * as ex from "excalibur"
 
 import {Grid} from "./grid"
+import {Player} from "./player"
 
 const defaultConfig = {
     display: {
@@ -35,6 +36,8 @@ export class Game {
     engine: ex.Engine
     canvas: HTMLCanvasElement
 	grid: Grid
+	activePlayer: Player
+	aiPlayer: Player
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
