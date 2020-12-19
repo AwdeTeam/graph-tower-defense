@@ -14,8 +14,10 @@
 
 import * as ex from "excalibur"
 
-import {Player} from "./player"
-import {Grid, TerrainGenerators} from "./grid"
+import * as player from "./player"
+import * as grid from "./grid"
+import * as unit from "./unit"
+import * as textures from "./data/textures.json"
 import {Resources} from "./resources"
 
 const defaultConfig = {
@@ -32,15 +34,21 @@ const defaultConfig = {
     }
 }
 
+function loadTexture(filename: string, loader: ex.Loader): ex.Texture {
+    let texture = new ex.Texture(filename)
+    loader.addResource(texture)
+    return texture
+}
+
 export class Game {
     config: any
     engine: ex.Engine
     assets: ex.Loader
     canvas: HTMLCanvasElement
-	grid: Grid
-	activePlayer: Player
-	aiPlayer: Player
 	resources: Resources
+	grid: grid.Grid
+	activePlayer: player.Player
+	aiPlayer: player.Player
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
@@ -51,12 +59,12 @@ export class Game {
             height: this.config.display.height,
             canvasElement: this.canvas,
         })
-		this.activePlayer = new Player(0, "user")
-        this.grid = new Grid(
+		this.activePlayer = new player.Player(0, "user")
+        this.grid = new grid.Grid(
             this.config.game.grid.width,
             this.config.game.grid.height,
             this.config.game.grid.squareSize,
-            TerrainGenerators.random, 
+            grid.TerrainGenerators.random, 
 			{ getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this) }
         )
 		this.engine.add(this.grid)
@@ -74,6 +82,31 @@ export class Game {
 		})
     }
 
+    getUnitTexture(type: unit.UnitType): ex.Texture {
+        let texture: string = ""
+        switch (type) {
+            case unit.UnitType.contTower: {
+                texture = textures.contTower
+                break
+            }
+            case unit.UnitType.wallTower: {
+                texture = textures.wallTower
+                break
+            }
+            case unit.UnitType.storTower: {
+                texture = textures.storTower
+                break
+            }
+            case unit.UnitType.watcTower: {
+                texture = textures.watcTower
+                break
+            }
+            default: {
+                texture = "box.png"
+            }
+        }
+        return loadTexture(`/static/assets/image/${texture}`, this.assets)
+    }
 
 	getActiveVisibleCoordinates(x: number, y: number): boolean
 	{
