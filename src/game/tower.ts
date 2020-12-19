@@ -16,72 +16,70 @@ import * as towers from "./data/towers.json"
 
 interface TowerType{
     sprite: string
-    consumes: ResType
-    conAmount: number
-    produces: ResType
-    proAmount: number
-    stores: ResType
-    stoAmount: number
+    consumeRes: ResType
+    consAmount: number
+    produceRes: ResType
+    prodAmount: number
+    storeRes: ResType
+    storeMax: number
     health: number
-    damage: number
     range: number
-    attRate:number
 }
 
 export class GridTower extends Unit{
-    public consumes: ResType
-    public conAmount: number
+    public consumeRes: ResType
+    public consAmount: number
 
-    public produces: ResType
-    public proAmount: number
+    public produceRes: ResType
+    public prodAmount: number
 
-    public stores: ResType
-    public stoAmount: number
+    public storeRes: ResType
+    public storeMax: number
+    public storeCur: number
 
     public sprite: string
 
     constructor(x: number, y: number, type: number, gridSize: number, gridSlot: GridSquare){
-        super(x,y, type, gridSize);
-        let protoTower;
+        super(x,y, type, gridSize)
+        let protoTower
         switch(this.type){
             case UnitType.contTower: {
-                protoTower = <TowerType>towers.control;
-                break;
+                protoTower = <TowerType>towers.control
+                break
             }
             case UnitType.wallTower: {
-                protoTower = <TowerType>towers.wall;
-                break;
+                protoTower = <TowerType>towers.wall
+                break
             }
             //storTower needs to be informed what to store
             case UnitType.storTower: {
-                protoTower = <TowerType>towers.storage;
-                break;
+                protoTower = <TowerType>towers.storage
+                break
             }
             case UnitType.watcTower: {
-                protoTower = <TowerType>towers.watch;
-                break;
+                protoTower = <TowerType>towers.watch
+                break
             }
             //drilTower needs to be informed what its producing
             case UnitType.drilTower: {
-                protoTower = <TowerType>towers.drill;
-                break;
+                protoTower = <TowerType>towers.drill
+                break
             }
             default: {
                 alert("Error: Unknown tower type passed into GridTower constructor.")
-                break;
+                break
             }
         }
-        this.sprite = protoTower.sprite;
-        this.consumes = protoTower.consumes;
-        this.conAmount = protoTower.conAmount;
-        this.produces = protoTower.produces;
-        this.proAmount = protoTower.proAmount;
-        this.stores = protoTower.stores;
-        this.stoAmount = protoTower.stoAmount;
-        this.health = protoTower.health;
-        this.damage = protoTower.damage;
-        this.range = protoTower.range;
-        this.attRate = protoTower.attRate;
+        this.sprite = protoTower.sprite
+        this.consumeRes = protoTower.consumeRes
+        this.consAmount = protoTower.consAmount
+        this.produceRes = protoTower.produceRes
+        this.prodAmount = protoTower.prodAmount
+        this.storeRes = protoTower.storeRes
+        this.storeMax = protoTower.storeMax
+        this.storeCur = 0
+        this.health = protoTower.health
+        this.range = protoTower.range
         if(type == UnitType.drilTower){
             //checks given GridSquare to determine resource to produce
         }else if(type == UnitType.storTower){
@@ -89,5 +87,21 @@ export class GridTower extends Unit{
         }
     }
 
-
+    //Fill in paramaters (like the graph or target) once more is determined
+    towerUpdate(){
+        if(this.prodAmount > 0){
+            //check to see if a stockpile can store this
+            //create and send to stockpile
+            //else
+            if(this.storeCur + this.prodAmount <= this.storeMax){
+                this.storeCur += this.prodAmount
+            }else{
+                this.storeCur = this.storeMax
+            }
+        }
+        //See if there is any excess that can be transferred
+        if(this.storeCur > 0){
+            //check graph for non-filled stockpiles or turrets
+        }
+    }
 }
