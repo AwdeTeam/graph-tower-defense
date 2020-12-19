@@ -13,7 +13,6 @@
  *    Alex L.
  */
 import * as ex from "excalibur"
-import {Grid } from "./grid"
 
 export enum UnitType {
     contTower = 0,
@@ -30,19 +29,41 @@ export enum ResType{
     iron,
 }
 
-export class Unit extends ex.Actor{
+export interface UnitCallbacks {
+    loadTexture: (type: UnitType) => ex.Texture
+    placeOnGrid: (gridX: number, gridY: number) => ex.ActorArgs
+}
+
+export class Unit extends ex.Actor {
     public type: UnitType
     public health: number
+    protected callbacks: UnitCallbacks
+
+    constructor(
+            gridX: number, gridY: number,
+            type: UnitType,
+            callbacks: UnitCallbacks) {
+        super(callbacks.placeOnGrid(gridX, gridY))
+        this.type = type
+        this.callbacks = callbacks
+    }
+
+    public onInitialize() {
+        this.addDrawing(this.callbacks.loadTexture(this.type))
+    }
+}
+
+export interface CombatUnitCallbacks {
+    findNearestOwned: (gridX: number, gridY: number, ownerID: number) => Unit
+}
+
+export class CombatUnit extends Unit {
     public damage: number
     public range: number
     public attRate: number
+    public target: Unit
+}
 
-    constructor(x: number, y: number, type: number, gridSize: number){
-        super({x: x, y: y, width: gridSize, height: gridSize})
-        this.type = type;
-    }
-
-    findNearestOwned(grid: Grid, owner: number): Unit {
-        return null
-    }
+export interface MobileUnitCallbacks {
+    
 }
