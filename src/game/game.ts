@@ -289,7 +289,6 @@ export class Game {
 				getPlayerByID: this.getPlayerByID.bind(this),
 				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
 				shoot: this.shoot.bind(this),
-				convertCellToPixels: this.convertCellToPixels.bind(this),
 			},
 			{
 				findNearestOwned: this.findNearestOwned.bind(this),
@@ -304,7 +303,6 @@ export class Game {
 				getPlayerByID: this.getPlayerByID.bind(this),
 				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
 				shoot: this.shoot.bind(this),
-				convertCellToPixels: this.convertCellToPixels.bind(this),
 			})
 		}
 
@@ -369,11 +367,6 @@ export class Game {
 		return this.grid.squares[gridPosition.x][gridPosition.y]
 	}
 
-	convertCellToPixels(gridCell: ex.Vector): ex.Vector
-	{
-		return this.grid.getGridPosition(gridCell)
-	}
-	
 
 	getActiveVisibleCoordinates(gridPosition: ex.Vector): boolean
 	{
@@ -397,7 +390,6 @@ export class Game {
 		}
 		let shot = new unit.Shot(originatingUnit.pos, targetPos, originatingUnit.playerID, shotType, {
 			loadShotTexture: this.getShotTexture.bind(this),
-			convertCellToPixels: this.convertCellToPixels.bind(this),
 		})
 		this.engine.add(shot)
 	}
