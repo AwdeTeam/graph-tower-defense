@@ -75,14 +75,25 @@ export class Game {
         )
 
 		this.grid.enableCapturePointer = true
-		this.grid.on("pointerenter", function (ev) { console.log("Hello!") })
 		this.engine.add(this.grid)
-		this.engine.input.pointers.primary.on('move', function (evt) {console.log("things")})
 
 		this.assets = new ex.Loader()
 
 		this.manager = new MusicManager( { addTimer: this.addTimer.bind(this) })
 		this.manager.addResources(this.assets)
+
+        this.mouseDownHandler = this.mouseDownHandler.bind(this)
+        this.setupHandlers()
+    }
+
+    setupHandlers() {
+        let self = this
+        this.engine.input.pointers.primary.on('down', function (evt) {
+            self.mouseDownHandler(<ex.PointerEvents>evt) })
+    }
+
+    mouseDownHandler(event: ex.PointerEvents) {
+        this.grid.mouseDownHandler(event)
     }
 
     start() {

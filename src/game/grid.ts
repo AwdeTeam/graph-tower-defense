@@ -41,6 +41,11 @@ export class Grid extends ex.Actor {
         this.callbacks = callbacks
 	}
 
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+        console.log(event)
+        console.log(event.pos)
+    }
+
 	onInitialize() {
 		// create list of gridsquares
 		for (let x = 0; x < this.size.x; x++)
@@ -86,13 +91,9 @@ export class GridSquare extends ex.Actor {
 		this.cellSideLength = cellSideLength
 		this.callbacks = callbacks
 
-		//this.enableCapturePointer
-		this.borderColor = "#000"
-		// this.on("pointerenter", function (ev) { this.pointerEnter(ev) })
-		// this.on("pointerleave", this.pointerLeave)
 		this.enableCapturePointer = true
-        console.log(localPos)
-        console.log(this.getLocalPosition())
+		this.borderColor = "#000"
+		this.enableCapturePointer = true
 	}
 
 	pointerEnter(ev: any) {
