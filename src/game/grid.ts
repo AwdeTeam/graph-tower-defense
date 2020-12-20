@@ -50,6 +50,10 @@ export class Grid extends ex.Actor {
 			for (let y = 0; y < this.sizeY; y++)
 			{
 				let gridSquare: GridSquare = new GridSquare(x, y, this.gridSize, this.callbacks)
+				gridSquare.enableCapturePointer = true
+				gridSquare.capturePointer.captureMoveEvents = true
+				gridSquare.on("pointerenter", gridSquare.pointerEnter)
+				gridSquare.on("pointerleave", gridSquare.pointerLeave)
                 gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
 				this.squares[x][y] = gridSquare
 			}
@@ -73,6 +77,7 @@ export class GridSquare extends ex.Actor {
 	gridSize: number
     terrain: Terrain
 	callbacks: GridCallbacks
+	borderColor: string
 	
 	constructor(x: number, y: number, gridSize: number, callbacks: GridCallbacks) {
 		super({x: x, y: y, width: gridSize, height: gridSize})
@@ -80,7 +85,25 @@ export class GridSquare extends ex.Actor {
 		this.y = y
 		this.gridSize = gridSize
 		this.callbacks = callbacks
+
+		//this.enableCapturePointer
+		this.borderColor = "#000"
+		// this.on("pointerenter", function (ev) { this.pointerEnter(ev) })
+		// this.on("pointerleave", this.pointerLeave)
+		this.enableCapturePointer = true
 	}
+
+
+	pointerEnter(ev: any) {
+		console.log("POINTER INSIDE")
+		this.borderColor = "#00F"
+	}
+	
+	pointerLeave(ev: any) {
+		console.log("POINTER OUTSIDE")
+		this.borderColor = "#000"
+	}
+	
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
 		if (!this.callbacks.getActiveVisibleCoordinates(this.x, this.y)) {
@@ -91,6 +114,7 @@ export class GridSquare extends ex.Actor {
             ctx.fillStyle = this.terrain.backgroundColorHexString
             ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
         }
+		ctx.strokeStyle = this.borderColor
 		ctx.strokeRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
 	}
 }

@@ -67,32 +67,21 @@ export class Game {
             grid.TerrainGenerators.random, 
 			{ getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this) }
         )
+
+		this.grid.enableCapturePointer = true
+		this.grid.on("pointerenter", function (ev) { console.log("Hello!") })
 		this.engine.add(this.grid)
+		this.engine.input.pointers.primary.on('move', function (evt) {console.log("things")})
 
 		this.assets = new ex.Loader()
 
 		this.manager = new MusicManager( { addTimer: this.addTimer.bind(this) })
 		this.manager.addResources(this.assets)
-
-		// loop through dictionary and add to loader
-		//this.resources = new Resources()
-		//this.resources.addResources(this.assets)
     }
 
     start() {
         console.log("Starting game")
-		// const baseSound = new ex.Sound('/static/assets/music/base.mp3')
-		// this.assets.addResources([baseSound])
-		// const timer = new ex.Timer({ fcn: () => { 
-		// 	console.log("Hello there!")
-		// 	baseSound.play()
-		// }, interval: 28800 })
-		// this.engine.add(timer)
-		// console.log(timer)
         this.engine.start(this.assets).then(function () {
-			// this.resources.sounds["baseSound"].play()
-			// this.sounds["baseSound"] = new ex.Sound('/assets/music/base.mp3')
-			//baseSound.play()
 			this.manager.playNextSong()
 		}.bind(this))
     }
