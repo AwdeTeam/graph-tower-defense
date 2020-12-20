@@ -177,12 +177,12 @@ export class MobileCombatUnit extends CombatUnit {
 		// move left
 		if (movement == "x" && diffX < 0) {
 			this.gridPosition.x -= 1
-			this.rotation = -1.6
+			this.rotation = -1.55
 		}
 		// move right
 		else if (movement == "x" && diffX > 0) {
 			this.gridPosition.x += 1
-			this.rotation = 1.6
+			this.rotation = 1.55
 		}
 		// move up
 		else if (movement == "y" && diffY > 0) {
