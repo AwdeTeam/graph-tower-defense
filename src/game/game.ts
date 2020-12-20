@@ -284,7 +284,7 @@ export class Game {
 		{
 			newUnit = new unit.MobileCombatUnit(p.id, pos, type, {
 				loadTexture: this.getUnitTexture.bind(this),
-				placeOnGrid: this.placeUnitOnGrid.bind(this),
+				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
 				getPlayerByID: this.getPlayerByID.bind(this),
 				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
 			},
@@ -346,15 +346,6 @@ export class Game {
 
 	getGridSize() { return this.config.game.grid.squareSize }
 
-	placeUnitOnGrid(gridPosition: ex.Vector): ex.ActorArgs
-	{
-		let halfSize = this.config.game.grid.squareSize / 2
-		let x = gridPosition.x * this.config.game.grid.squareSize + halfSize
-		let y = gridPosition.y * this.config.game.grid.squareSize + halfSize
-		//console.log("x:" + x + " y:" + y)
-		return { x: x, y: y }
-
-	}
     getUnitTexture(type: unit.UnitType): ex.Texture {
 
 		//if (this.textures.hasOwnProperty(type)) { return this.textures[type] }

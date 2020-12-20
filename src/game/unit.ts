@@ -58,22 +58,12 @@ export class Edge extends ex.Actor {
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
 		ctx.beginPath();
-		let point1 = this.getPoint(this.unit1)
-		let point2 = this.getPoint(this.unit2)
-		ctx.moveTo(point1[0], point1[1])
-		ctx.lineTo(point2[0], point2[1])
+		let point1 = this.unit1.getPixelPosition()
+		let point2 = this.unit2.getPixelPosition()
+		ctx.moveTo(point1.x, point1.y)
+		ctx.lineTo(point2.x, point2.y)
 		ctx.lineWidth = 5
 		ctx.stroke()
-	}
-
-	getPoint(unit: Unit) {
-
-		let size = this.callbacks.getGridSize()
-		let half = size / 2
-		let x = unit.gridPosition.x * size + half
-		let y = unit.gridPosition.y * size + half
-
-		return [x, y]
 	}
 }
 
@@ -98,12 +88,16 @@ export class Unit extends ex.Actor {
         this.callbacks = callbacks
     }
 
+    public getPixelPosition(): ex.Vector {
+        return this.callbacks.placeOnGrid(this.gridPosition)
+    }
+
     public onInitialize() {
         this.addDrawing(this.callbacks.loadTexture(this.type))
     }
 
     public onPostDraw() {
-        this.pos = this.callbacks.placeOnGrid(this.gridPosition)
+        this.pos = this.getPixelPosition()
     }
 }
 
@@ -119,7 +113,8 @@ export class CombatUnit extends Unit {
     public target: Unit
 	combatUnitCallbacks: CombatUnitCallbacks
 
-	constructor(playerID: number, gridPosition: ex.Vector, type: UnitType, unitCallbacks: UnitCallbacks, callbacks: CombatUnitCallbacks)
+    constructor(playerID: number, gridPosition: ex.Vector,
+        type: UnitType, unitCallbacks: UnitCallbacks, callbacks: CombatUnitCallbacks)
 	{
 		super(playerID, gridPosition, type, unitCallbacks)
 		this.combatUnitCallbacks = callbacks
@@ -172,54 +167,38 @@ export class MobileCombatUnit extends CombatUnit {
 		if (this.movementCooldown > 0) { return }
 
 		// calculate path
-		let diffX = targetPos.x - this.gridPosition.x
-		let diffY = targetPos.y - this.gridPosition.y
+        let diff = targetPos.sub(this.gridPosition)
 
 		// TODO determine if in range to shoot
 
 		// determine whether next movement is in x or y axis
 		let movement = "y"
-		if (Math.abs(diffX) > Math.abs(diffY)) { movement = "x" }
+		if (Math.abs(diff.x) > Math.abs(diff.y)) { movement = "x" }
 
 		// move left
-		if (movement == "x" && diffX < 0) {
+		if (movement == "x" && diff.x < 0) {
 			this.gridPosition.x -= 1
-			this.rotation = -1.55
+            this.rotation = 3/2*Math.PI
 		}
 		// move right
-		else if (movement == "x" && diffX > 0) {
+		else if (movement == "x" && diff.x > 0) {
 			this.gridPosition.x += 1
-			this.rotation = 1.55
+            this.rotation = 1/2*Math.PI
 		}
 		// move up
-		else if (movement == "y" && diffY > 0) {
+		else if (movement == "y" && diff.y > 0) {
 			this.gridPosition.y += 1
-			this.rotation = 3.14
+			this.rotation = Math.PI
 		}
 		// move down
-		else if (movement == "y" && diffY < 0) {
+		else if (movement == "y" && diff.y < 0) {
 			this.gridPosition.y -= 1
-			this.rotation = 0
+			this.rotation = 0*Math.PI
 		}
 
-
-		this.movementCooldown = this.speed*this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
+        this.movementCooldown = this.speed*
+            this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		let result = this.callbacks.placeOnGrid(this.gridPosition)
 		this.pos = new ex.Vector(result.x, result.y)
-			
-		
-
-
-		
-        //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
-		//let targ = this.acquireTarget()
-		//if (targ == null) { return }
-		//let targPos = targ.gridPosition
-        //let path = targPos.sub(this.pos)
-        //if (path.magnitude() > MobileCombatUnit.tolerance) {
-        //    this.vel = path.normalize().scale(this.speed)
-        //} else {
-        //    this.vel = new ex.Vector(0, 0)
-        //}
     }
 }
