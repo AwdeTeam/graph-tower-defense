@@ -1,4 +1,5 @@
 import * as ex from "excalibur"
+import * as utils from "./util"
 
 export interface MusicCallbacks {
 	addTimer: (timer: ex.Timer) => void
@@ -54,11 +55,6 @@ export class MusicManager {
 		this.nextSong = this.songs[nextName]
 	}
 
-	// lower bound inclusive, upper bound exclusive
-	randomNumber(min: number, max: number): number
-	{
-		return Math.floor(Math.random() * (max - min) + min);
-	}
 
 	playNextSong()
 	{
@@ -76,12 +72,12 @@ export class MusicManager {
 	chooseRandomSongName(): string
 	{
 		// choose variant
-		let num = this.randomNumber(1, 9)
+		let num = utils.randomNumber(1, 9)
 		let numString = num.toString()
 		if (num == 8) { numString = "ALL" }
 
 		// choose pitch
-		let pitch = this.randomNumber(0, 3) 
+		let pitch = utils.randomNumber(0, 3) 
 		let pitchString = "normal"
 		if (pitch == 0) { pitchString = "minus" }
 		else if (pitch == 2) { pitchString = "plus" }
