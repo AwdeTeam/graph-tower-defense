@@ -29,6 +29,7 @@ export class Grid extends ex.Actor {
 	cellSideLength: number
     terrainGenerator: (square: GridSquare) => TerrainType
     callbacks: GridCallbacks
+    pointerOver: GridSquare
 	
     constructor(size: ex.Vector, cellSideLength: number,
         terrainGenerator: (square: GridSquare) => TerrainType,
@@ -41,6 +42,35 @@ export class Grid extends ex.Actor {
         this.callbacks = callbacks
 	}
 
+    getGridCell(pixelPosition: ex.Vector): GridSquare {
+        let localPos = pixelPosition.scale(1/this.cellSideLength).add(this.callbacks.getOffset())
+        let [x, y] = [Math.floor(localPos.x), Math.floor(localPos.y)]
+        if (0 < x && x < this.squares.length && 0 < y && y < this.squares[x].length) {
+            return this.squares[x][y]
+        }
+        return null
+    }
+
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+        let cell = this.getGridCell(event.pos)
+        if (cell) { cell.mouseDownHandler(event) }
+    }
+
+    mouseUpHandler(event: ex.Input.PointerUpEvent) {
+        let cell = this.getGridCell(event.pos)
+        if (cell) { this.getGridCell(event.pos).mouseUpHandler(event) }
+    }
+
+    mouseMoveHandler(event: ex.Input.PointerMoveEvent) {
+        let cell = this.getGridCell(event.pos)
+        if (!cell) { return }
+        if (this.pointerOver && cell !== this.pointerOver) {
+            this.pointerOver.mouseLeaveHandler(event)
+        }
+        cell.mouseEnterHandler(event)
+        this.pointerOver = cell
+    }
+
 	onInitialize() {
 		// create list of gridsquares
 		for (let x = 0; x < this.size.x; x++)
@@ -51,10 +81,6 @@ export class Grid extends ex.Actor {
                 let gridSquare: GridSquare = new GridSquare(new ex.Vector(x, y),
                     this.cellSideLength,
                     this.callbacks)
-				gridSquare.enableCapturePointer = true
-				gridSquare.capturePointer.captureMoveEvents = true
-				gridSquare.on("pointerenter", gridSquare.pointerEnter)
-				gridSquare.on("pointerleave", gridSquare.pointerLeave)
                 gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
 				this.squares[x][y] = gridSquare
 			}
@@ -86,22 +112,25 @@ export class GridSquare extends ex.Actor {
 		this.cellSideLength = cellSideLength
 		this.callbacks = callbacks
 
-		//this.enableCapturePointer
-		this.borderColor = "#000"
-		// this.on("pointerenter", function (ev) { this.pointerEnter(ev) })
-		// this.on("pointerleave", this.pointerLeave)
 		this.enableCapturePointer = true
-        console.log(localPos)
-        console.log(this.getLocalPosition())
+		this.borderColor = "#000"
+		this.enableCapturePointer = true
 	}
 
-	pointerEnter(ev: any) {
-		console.log("POINTER INSIDE")
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+        console.log(this.gridPosition)
+        this.borderColor = "#0FF"
+    }
+
+    mouseUpHandler(event: ex.Input.PointerUpEvent) {
+
+    }
+
+	mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
 		this.borderColor = "#00F"
 	}
 	
-	pointerLeave(ev: any) {
-		console.log("POINTER OUTSIDE")
+	mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
 		this.borderColor = "#000"
 	}
 

@@ -85,9 +85,7 @@ export class Game {
         )
 
 		this.grid.enableCapturePointer = true
-		this.grid.on("pointerenter", function (ev) { console.log("Hello!") })
 		this.engine.add(this.grid)
-		this.engine.input.pointers.primary.on('move', function (evt) {console.log("things")})
 
 		this.assets = new ex.Loader()
 
@@ -101,10 +99,35 @@ export class Game {
 		this.cachedNearestOwned = []
 		
 		this.debugHalt = false
+		
+        this.mouseDownHandler = this.mouseDownHandler.bind(this)
+        this.mouseUpHandler = this.mouseUpHandler.bind(this)
+        this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
+        this.setupHandlers()
+    }
+
+    setupHandlers() {
+        this.engine.input.pointers.primary.on('down', this.mouseDownHandler)
+        this.engine.input.pointers.primary.on('up', this.mouseUpHandler)
+        this.engine.input.pointers.primary.on('move', this.mouseMoveHandler)
+    }
+
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+        this.grid.mouseDownHandler(event)
+    }
+
+    mouseUpHandler(event: ex.Input.PointerUpEvent) {
+        this.grid.mouseUpHandler(event)
+    }
+
+    mouseMoveHandler(event: ex.Input.PointerMoveEvent) {
+        this.grid.mouseMoveHandler(event)
     }
 
     start() {
         console.log("Starting game")
+		this.loadTextures()
+		this.setupInitialUnits()
         this.engine.start(this.assets).then(function () {
 			this.manager.playNextSong()
 		}.bind(this))
