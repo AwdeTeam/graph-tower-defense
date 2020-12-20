@@ -24,6 +24,8 @@ app = Flask(__name__,
 def serve():
     return send_from_directory("", "index.html")
 
-@app.route("/assets/<path:path>")
-def send_assets(path):
-    return send_from_directory("build/assets", path)
+
+# (nope, I'm just blind and didn't see we have to prefix routes with /static)
+#  @app.route("/assets/<path:path>")
+#  def send_assets(path):
+#      return send_from_directory("build/assets", path)

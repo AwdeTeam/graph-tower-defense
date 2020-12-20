@@ -78,7 +78,7 @@ export class Game {
 
     start() {
         console.log("Starting game")
-		const baseSound = new ex.Sound('/assets/music/base.mp3')
+		const baseSound = new ex.Sound('/static/assets/music/base.mp3')
 		this.assets.addResources([baseSound])
         this.engine.start(this.assets).then(function () {
 			// this.resources.sounds["baseSound"].play()
