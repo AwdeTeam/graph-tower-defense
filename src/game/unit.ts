@@ -220,7 +220,6 @@ export class MobileCombatUnit extends CombatUnit {
 		this.callbacks.shoot(this, targetPos)
 		this.shotCooldown = 1000
 	}
-	
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
 		let target = this.acquireTarget()
@@ -234,20 +233,6 @@ export class MobileCombatUnit extends CombatUnit {
 				this.tryShoot(shootingCoords, delta)
 			}
 		}
-		
-
-
-		
-        //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
-		//let targ = this.acquireTarget()
-		//if (targ == null) { return }
-		//let targPos = targ.gridPosition
-        //let path = targPos.sub(this.pos)
-        //if (path.magnitude() > MobileCombatUnit.tolerance) {
-        //    this.vel = path.normalize().scale(this.speed)
-        //} else {
-        //    this.vel = new ex.Vector(0, 0)
-        //}
     }
 }
 
@@ -265,18 +250,28 @@ export class Shot extends ex.Actor
 	ownerID: number
 	type: ShotType
 	callbacks: ShotCallbacks
+	target: ex.Vector
 	
-	constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number, type: ShotType, callbacks: ShotCallbacks)
+    constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number,
+        type: ShotType, callbacks: ShotCallbacks)
 	{
 		let inbetween = targetPos.sub(currentPos)
 
 		let inferiorRadians = inbetween.toAngle() + Math.PI / 2
 		
 		super({x: currentPos.x, y: currentPos.y, rotation: inferiorRadians, vel: inbetween})
+        this.target = targetPos
 		this.ownerID = ownerID
 		this.type = type
 		this.callbacks = callbacks
 	}
 
 	onInitialize() { this.addDrawing(this.callbacks.loadShotTexture(this.type)) }
+
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+        const collisionDistance = 8
+        if (this.pos.sub(this.target).magnitude() < collisionDistance) {
+            this.kill()
+        }
+    }
 }
