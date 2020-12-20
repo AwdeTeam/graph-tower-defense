@@ -32,6 +32,7 @@ export class Player extends ex.Actor {
     name: string
     resources: ResourceCollection
     ownedTowers: MockTower[]
+    panOffset: ex.Vector
 	visibleCoordinates: [number, number][]
 
     constructor (id: number, name: string) {
@@ -43,6 +44,7 @@ export class Player extends ex.Actor {
             mana: 0,
         }
 		this.visibleCoordinates = [[0, 0], [0, 1], [1, 0]]
+        this.panOffset = new ex.Vector(0, 0)
     }
 
     public onPreUpdate(engine: ex.Engine, delta: number) {

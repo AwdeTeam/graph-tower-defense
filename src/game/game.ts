@@ -56,6 +56,7 @@ export class Game {
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
+        let self = this
         this.config = config
         this.canvas = canvas
         this.engine = new ex.Engine({
@@ -65,11 +66,13 @@ export class Game {
         })
 		this.activePlayer = new player.Player(0, "user")
         this.grid = new grid.Grid(
-            this.config.game.grid.width,
-            this.config.game.grid.height,
+            new ex.Vector(this.config.game.grid.width, this.config.game.grid.height),
             this.config.game.grid.squareSize,
             grid.TerrainGenerators.random, 
-			{ getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this) }
+            {
+                getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this),
+                getOffset: () => { return self.activePlayer.panOffset },
+            }
         )
 
 		this.grid.enableCapturePointer = true
@@ -151,14 +154,14 @@ export class Game {
         return loadTexture(`/static/assets/images/${texture}`, this.assets)
     }
 
-	getActiveVisibleCoordinates(x: number, y: number): boolean
+	getActiveVisibleCoordinates(gridPosition: ex.Vector): boolean
 	{
         if (!this.config.settings.fogOfWar) {
             return true
         }
 		for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
 			let square = this.activePlayer.visibleCoordinates[i]
-			if (square[0] == x && square[1] == y) { return true; }
+			if (square[0] == gridPosition.x && square[1] == gridPosition.y) { return true; }
 		}
 		return false
 	}
