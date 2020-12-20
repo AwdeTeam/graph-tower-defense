@@ -76,31 +76,20 @@ export class Game {
 
 		this.manager = new MusicManager( { addTimer: this.addTimer.bind(this) })
 		this.manager.addResources(this.assets)
-
-		// loop through dictionary and add to loader
-		//this.resources = new Resources()
-		//this.resources.addResources(this.assets)
     }
 
     start() {
         console.log("Starting game")
-		// const baseSound = new ex.Sound('/static/assets/music/base.mp3')
-		// this.assets.addResources([baseSound])
-		// const timer = new ex.Timer({ fcn: () => { 
-		// 	console.log("Hello there!")
-		// 	baseSound.play()
-		// }, interval: 28800 })
-		// this.engine.add(timer)
-		// console.log(timer)
-        this.engine.start(this.assets).then(function () {
-			// this.resources.sounds["baseSound"].play()
-			// this.sounds["baseSound"] = new ex.Sound('/assets/music/base.mp3')
-			//baseSound.play()
+	        this.engine.start(this.assets).then(function () {
 			this.manager.playNextSong()
 		}.bind(this))
     }
 
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
+
+    setupInitialUnits() {
+
+    }
 
     getUnitTexture(type: unit.UnitType): ex.Texture {
         let texture: string = ""
