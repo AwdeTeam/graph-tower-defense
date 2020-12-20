@@ -86,6 +86,7 @@ export class Game {
 
 		this.grid.enableCapturePointer = true
 		this.engine.add(this.grid)
+        this.engine.add(this.activePlayer)
 
 		this.assets = new ex.Loader()
 
@@ -294,7 +295,7 @@ export class Game {
 		{
 			newUnit = new unit.Unit(p.id, pos, type, {
 				loadTexture: this.getUnitTexture.bind(this),
-				placeOnGrid: this.placeUnitOnGrid.bind(this),
+				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
 				getPlayerByID: this.getPlayerByID.bind(this),
 			})
 		}

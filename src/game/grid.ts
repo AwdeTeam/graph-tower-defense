@@ -51,6 +51,14 @@ export class Grid extends ex.Actor {
         return null
     }
 
+    getGridPosition(gridPosition: ex.Vector): ex.Vector {
+        return gridPosition.scale(this.cellSideLength).add(this.callbacks.getOffset())
+    }
+
+    placeOnGrid(gridPosition: ex.Vector): ex.Vector {
+        return this.getGridPosition(gridPosition).add(ex.Vector.One.scale(this.cellSideLength/2))
+    }
+
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
         let cell = this.getGridCell(event.pos)
         if (cell) { cell.mouseDownHandler(event) }

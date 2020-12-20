@@ -37,8 +37,8 @@ export interface EdgeCallbacks {
 }
 
 export interface UnitCallbacks {
-    loadTexture: (type: UnitType) => ex.Texture,
-    placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
+    loadTexture: (type: UnitType) => ex.Texture
+    placeOnGrid: (gridPosition: ex.Vector) => ex.Vector
 	getPlayerByID: (id: number) => player.Player
 }
 
@@ -88,7 +88,8 @@ export class Unit extends ex.Actor {
             gridPosition: ex.Vector,
             type: UnitType,
             callbacks: UnitCallbacks) {
-        super(callbacks.placeOnGrid(gridPosition))
+        let pixelPosition = callbacks.placeOnGrid(gridPosition)
+        super({x: pixelPosition.x, y: pixelPosition.y})
 		this.playerID = playerID
         this.gridPosition = gridPosition
         this.type = type
@@ -97,6 +98,10 @@ export class Unit extends ex.Actor {
 
     public onInitialize() {
         this.addDrawing(this.callbacks.loadTexture(this.type))
+    }
+
+    public onPostDraw() {
+        this.pos = this.callbacks.placeOnGrid(this.gridPosition)
     }
 }
 
