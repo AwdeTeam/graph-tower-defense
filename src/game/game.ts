@@ -55,6 +55,7 @@ export class Game {
 	players: player.Player[]
 	manager: MusicManager
 	textures: ex.Texture[]
+	shotTextures: ex.Texture[]
 
 	cachedNearestOwned: {gridPosition: ex.Vector, ownerID: number, out: unit.Unit, ttl: number}[]
 
@@ -286,6 +287,7 @@ export class Game {
 				placeOnGrid: this.placeUnitOnGrid.bind(this),
 				getPlayerByID: this.getPlayerByID.bind(this),
 				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
+				shoot: this.shoot.bind(this),
 			},
 			{
 				findNearestOwned: this.findNearestOwned.bind(this),
@@ -299,6 +301,7 @@ export class Game {
 				placeOnGrid: this.placeUnitOnGrid.bind(this),
 				getPlayerByID: this.getPlayerByID.bind(this),
 				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
+				shoot: this.shoot.bind(this),
 			})
 		}
 
@@ -332,6 +335,7 @@ export class Game {
 
 	loadTextures() {
 		this.textures = []
+		this.shotTextures = []
 
 		this.textures[unit.UnitType.contTower] = loadTexture("tower_control.png", this.assets)
 		this.textures[unit.UnitType.wallTower] = loadTexture("tower_basic.png", this.assets)
@@ -341,6 +345,9 @@ export class Game {
 		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.mob] = loadTexture("Rat.png", this.assets)
+
+		this.shotTextures[unit.ShotType.ratShot] = loadTexture("Rat_tail.png", this.assets)
+		this.shotTextures[unit.ShotType.towerShot] = loadTexture("Projectile2.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
@@ -358,31 +365,10 @@ export class Game {
 
 		//if (this.textures.hasOwnProperty(type)) { return this.textures[type] }
 		return this.textures[type]
-		
-        let texture: string = ""
-        switch (type) {
-            case unit.UnitType.contTower: {
-                texture = textures.contTower
-                break
-            }
-            case unit.UnitType.wallTower: {
-                texture = textures.wallTower
-                break
-            }
-            case unit.UnitType.storTower: {
-                texture = textures.storTower
-                break
-            }
-            case unit.UnitType.watcTower: {
-                texture = textures.watcTower
-                break
-            }
-            default: {
-                texture = "box.png"
-            }
-        }
-        return loadTexture(`/static/assets/images/${texture}`, this.assets)
     }
+	getShotTexture(type: unit.ShotType): ex.Texture {
+		return this.shotTextures[type]
+	}
 
 	getGridSquareFromPosition(gridPosition: ex.Vector): grid.GridSquare
 	{
@@ -400,5 +386,18 @@ export class Game {
 		// 	if (square[0] == gridPosition.x && square[1] == gridPosition.y) { return true; }
 		// }
 		// return false
+	}
+
+	shoot(originatingUnit: unit.Unit, targetPos: ex.Vector)
+	{
+		let shotType = unit.ShotType.towerShot
+		if (originatingUnit.type == unit.UnitType.mob)
+		{
+			shotType = unit.ShotType.ratShot
+		}
+		let shot = new unit.Shot(originatingUnit.pos, targetPos, originatingUnit.playerID, shotType, {
+			loadShotTexture: this.getShotTexture.bind(this)
+		})
+		this.engine.add(shot)
 	}
 }

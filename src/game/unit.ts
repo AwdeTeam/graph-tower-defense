@@ -42,6 +42,7 @@ export interface UnitCallbacks {
     placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
 	getPlayerByID: (id: number) => player.Player
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
+	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
 }
 
 export class Edge extends ex.Actor {
@@ -142,6 +143,7 @@ export class MobileCombatUnit extends CombatUnit {
     protected gridPathTarget: ex.Vector
     //protected mobileCallbacks: MobileUnitCallbacks
 	movementCooldown: number
+	shotCooldown: number
 
     constructor(
 		playerID: number,
@@ -155,20 +157,21 @@ export class MobileCombatUnit extends CombatUnit {
         ///this.mobileCallbacks = mobileCallbacks
 		this.speed = 1000
 		this.movementCooldown = 1000
+		this.shotCooldown = 1000
     }
 
-    public onPostUpdate(engine: ex.Engine, delta: number) {
-		let target = this.acquireTarget()
-		if (target == null) { return }
-		let targetPos = target.gridPosition
-
+	// returns true if already at target 
+	moveTowardsTarget(targetPos: ex.Vector, delta: number): boolean
+	{
 		// can we move?
 		this.movementCooldown -= delta
-		if (this.movementCooldown > 0) { return }
+		if (this.movementCooldown > 0) { return false }
 
 		// calculate path
 		let diffX = targetPos.x - this.gridPosition.x
 		let diffY = targetPos.y - this.gridPosition.y
+
+		if (Math.abs(diffX) + Math.abs(diffY) <= 2) { return true; } // fire instead
 
 		// TODO determine if in range to shoot
 
@@ -201,7 +204,32 @@ export class MobileCombatUnit extends CombatUnit {
 		this.movementCooldown = this.speed*this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		let result = this.callbacks.placeOnGrid(this.gridPosition)
 		this.pos = new ex.Vector(result.x, result.y)
-			
+		return false
+	}
+
+	tryShoot(targetPos: ex.Vector, delta: number)
+	{
+		// can we shoot?
+		this.shotCooldown -= delta
+		if (this.shotCooldown > 0) { return }
+		console.log("Firing!")
+
+		this.callbacks.shoot(this, targetPos)
+		this.shotCooldown = 1000
+	}
+	
+
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+		let target = this.acquireTarget()
+		if (target != null) 
+		{ 
+			let targetPos = target.gridPosition
+			//let result = this.moveTowardsTarget(targetPos, delta)
+			//if (result)
+			//{
+			this.tryShoot(targetPos, delta)
+			//}
+		}
 		
 
 
@@ -217,4 +245,34 @@ export class MobileCombatUnit extends CombatUnit {
         //    this.vel = new ex.Vector(0, 0)
         //}
     }
+}
+
+export interface ShotCallbacks {
+    loadShotTexture: (type: ShotType) => ex.Texture,
+}
+
+export enum ShotType {
+    ratShot = 0,
+    towerShot,
+}
+
+export class Shot extends ex.Actor
+{
+	ownerID: number
+	type: ShotType
+	callbacks: ShotCallbacks
+	
+	constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number, type: ShotType, callbacks: ShotCallbacks)
+	{
+		let inbetween = targetPos.sub(currentPos)
+
+		let inferiorRadians = inbetween.toAngle() + Math.PI / 2
+		
+		super({x: currentPos.x, y: currentPos.y, rotation: inferiorRadians, vel: inbetween})
+		this.ownerID = ownerID
+		this.type = type
+		this.callbacks = callbacks
+	}
+
+	onInitialize() { this.addDrawing(this.callbacks.loadShotTexture(this.type)) }
 }
