@@ -69,16 +69,21 @@ export class Game {
         )
 		this.engine.add(this.grid)
 
+		this.assets = new ex.Loader()
 
 		// loop through dictionary and add to loader
-		this.resources = new Resources()
-		this.resources.addResources(this.assets)
+		//this.resources = new Resources()
+		//this.resources.addResources(this.assets)
     }
 
     start() {
         console.log("Starting game")
+		const baseSound = new ex.Sound('/assets/music/base.mp3')
+		this.assets.addResources([baseSound])
         this.engine.start(this.assets).then(function () {
-			this.resources.sounds["baseSound"].play()
+			// this.resources.sounds["baseSound"].play()
+			// this.sounds["baseSound"] = new ex.Sound('/assets/music/base.mp3')
+			baseSound.play()
 		})
     }
 
