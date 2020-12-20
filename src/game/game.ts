@@ -85,21 +85,8 @@ export class Game {
 		this.manager = new MusicManager( { addTimer: this.addTimer.bind(this) })
 		this.manager.addResources(this.assets)
 
-		let testUnit = new unit.Unit(new ex.Vector(5, 1), unit.UnitType.contTower, {
-			loadTexture: this.getUnitTexture.bind(this),
-			placeOnGrid: this.placeUnitOnGrid.bind(this)
-		})
-		this.engine.add(testUnit)
-
-		this.textures = []
-
-		this.textures[unit.UnitType.contTower] = loadTexture("tower_control.png", this.assets)
-		this.textures[unit.UnitType.wallTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.storTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.watcTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.drilTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
+		this.loadTextures()
+		this.setupInitialUnits()
     }
 
     start() {
@@ -112,16 +99,39 @@ export class Game {
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
 
     setupInitialUnits() {
+		let testUnit = new unit.Unit(new ex.Vector(0, 0), unit.UnitType.contTower, {
+			loadTexture: this.getUnitTexture.bind(this),
+			placeOnGrid: this.placeUnitOnGrid.bind(this)
+		})
 		
+		let testUnit2 = new unit.Unit(new ex.Vector(6, 8), unit.UnitType.drilTower, {
+			loadTexture: this.getUnitTexture.bind(this),
+			placeOnGrid: this.placeUnitOnGrid.bind(this)
+		})
+		
+		this.engine.add(testUnit)
+		this.engine.add(testUnit2)
     }
 
 	loadTextures() {
-		
+		this.textures = []
+
+		this.textures[unit.UnitType.contTower] = loadTexture("tower_control.png", this.assets)
+		this.textures[unit.UnitType.wallTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.storTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.watcTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.drilTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
 	}
 
 	placeUnitOnGrid(gridPosition: ex.Vector): ex.ActorArgs
 	{
-		return { x: gridPosition.x * this.config.game.grid.squareSize, y: gridPosition.y * this.config.game.grid.squareSize }
+		let halfSize = this.config.game.grid.squareSize / 2
+		let x = gridPosition.x * this.config.game.grid.squareSize + halfSize
+		let y = gridPosition.y * this.config.game.grid.squareSize + halfSize
+		console.log("x:" + x + " y:" + y)
+		return { x: x, y: y }
 	}
 
     getUnitTexture(type: unit.UnitType): ex.Texture {
