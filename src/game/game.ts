@@ -335,7 +335,7 @@ export class Game {
 		let halfSize = this.config.game.grid.squareSize / 2
 		let x = gridPosition.x * this.config.game.grid.squareSize + halfSize
 		let y = gridPosition.y * this.config.game.grid.squareSize + halfSize
-		console.log("x:" + x + " y:" + y)
+		//console.log("x:" + x + " y:" + y)
 		return { x: x, y: y }
 	}
 
