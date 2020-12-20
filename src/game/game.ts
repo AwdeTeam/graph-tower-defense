@@ -18,7 +18,7 @@ import * as player from "./player"
 import * as grid from "./grid"
 import * as unit from "./unit"
 import * as textures from "./data/textures.json"
-import {Resources} from "./resources"
+import {MusicManager} from "./music"
 
 const defaultConfig = {
     display: {
@@ -45,10 +45,10 @@ export class Game {
     engine: ex.Engine
     assets: ex.Loader
     canvas: HTMLCanvasElement
-	resources: Resources
 	grid: grid.Grid
 	activePlayer: player.Player
 	aiPlayer: player.Player
+	manager: MusicManager
 
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
@@ -71,6 +71,9 @@ export class Game {
 
 		this.assets = new ex.Loader()
 
+		this.manager = new MusicManager( { addTimer: this.addTimer.bind(this) })
+		this.manager.addResources(this.assets)
+
 		// loop through dictionary and add to loader
 		//this.resources = new Resources()
 		//this.resources.addResources(this.assets)
@@ -78,14 +81,23 @@ export class Game {
 
     start() {
         console.log("Starting game")
-		const baseSound = new ex.Sound('/static/assets/music/base.mp3')
-		this.assets.addResources([baseSound])
+		// const baseSound = new ex.Sound('/static/assets/music/base.mp3')
+		// this.assets.addResources([baseSound])
+		// const timer = new ex.Timer({ fcn: () => { 
+		// 	console.log("Hello there!")
+		// 	baseSound.play()
+		// }, interval: 28800 })
+		// this.engine.add(timer)
+		// console.log(timer)
         this.engine.start(this.assets).then(function () {
 			// this.resources.sounds["baseSound"].play()
 			// this.sounds["baseSound"] = new ex.Sound('/assets/music/base.mp3')
-			baseSound.play()
-		})
+			//baseSound.play()
+			this.manager.playNextSong()
+		}.bind(this))
     }
+
+	addTimer(timer: ex.Timer) { this.engine.add(timer) }
 
     getUnitTexture(type: unit.UnitType): ex.Texture {
         let texture: string = ""
