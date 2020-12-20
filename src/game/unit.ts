@@ -220,7 +220,6 @@ export class MobileCombatUnit extends CombatUnit {
 		this.callbacks.shoot(this, targetPos)
 		this.shotCooldown = 1000
 	}
-	
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
 		let target = this.acquireTarget()
@@ -234,20 +233,6 @@ export class MobileCombatUnit extends CombatUnit {
 				this.tryShoot(shootingCoords, delta)
 			}
 		}
-		
-
-
-		
-        //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
-		//let targ = this.acquireTarget()
-		//if (targ == null) { return }
-		//let targPos = targ.gridPosition
-        //let path = targPos.sub(this.pos)
-        //if (path.magnitude() > MobileCombatUnit.tolerance) {
-        //    this.vel = path.normalize().scale(this.speed)
-        //} else {
-        //    this.vel = new ex.Vector(0, 0)
-        //}
     }
 }
 
@@ -266,9 +251,11 @@ export class Shot extends ex.Actor
 	ownerID: number
 	type: ShotType
 	callbacks: ShotCallbacks
+	target: ex.Vector
 	prevPanOffset: ex.Vector
 	
-	constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number, type: ShotType, callbacks: ShotCallbacks)
+    constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number,
+        type: ShotType, callbacks: ShotCallbacks)
 	{
 		let inbetween = targetPos.sub(currentPos)
 
@@ -276,6 +263,7 @@ export class Shot extends ex.Actor
 		inbetween = inbetween.normalize().scale(100)
 		
 		super({x: currentPos.x, y: currentPos.y, rotation: inferiorRadians, vel: inbetween})
+        this.target = targetPos
 		this.ownerID = ownerID
 		this.type = type
 		this.callbacks = callbacks
@@ -283,11 +271,18 @@ export class Shot extends ex.Actor
 	}
 
 	onInitialize() { this.addDrawing(this.callbacks.loadShotTexture(this.type)) }
-	
-    onPostUpdate(engine: ex.Engine, delta: number) {
+
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+        const collisionDistance = 8
+
 		let currentOffset = this.callbacks.getActivePlayer().panOffset
 		let actualOffset = currentOffset.sub(this.prevPanOffset)
 		this.pos = this.pos.add(actualOffset)
+        this.target = this.target.add(actualOffset)
 		this.prevPanOffset = currentOffset
-	}
+
+        if (this.pos.sub(this.target).magnitude() < collisionDistance) {
+            this.kill()
+        }
+    }
 }
