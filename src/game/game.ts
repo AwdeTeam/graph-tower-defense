@@ -285,6 +285,7 @@ export class Game {
 				loadTexture: this.getUnitTexture.bind(this),
 				placeOnGrid: this.placeUnitOnGrid.bind(this),
 				getPlayerByID: this.getPlayerByID.bind(this),
+				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
 			},
 			{
 				findNearestOwned: this.findNearestOwned.bind(this),
@@ -297,6 +298,7 @@ export class Game {
 				loadTexture: this.getUnitTexture.bind(this),
 				placeOnGrid: this.placeUnitOnGrid.bind(this),
 				getPlayerByID: this.getPlayerByID.bind(this),
+				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
 			})
 		}
 
@@ -319,11 +321,11 @@ export class Game {
 
 	spawnEnemy() {
 		console.log("Spawned enemy")
-		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
-		this.addTimer(timer)
+		//const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
+		//this.addTimer(timer)
 
-		let x = utils.randomNumber(0,20)
-		let y = utils.randomNumber(0,20)
+		let x = utils.randomNumber(0,10)
+		let y = utils.randomNumber(0,10)
 
 		let enemey = this.createUnit(this.aiPlayer, new ex.Vector(x, y), unit.UnitType.mob)
 	}
@@ -350,8 +352,8 @@ export class Game {
 		let y = gridPosition.y * this.config.game.grid.squareSize + halfSize
 		//console.log("x:" + x + " y:" + y)
 		return { x: x, y: y }
-	}
 
+	}
     getUnitTexture(type: unit.UnitType): ex.Texture {
 
 		//if (this.textures.hasOwnProperty(type)) { return this.textures[type] }
@@ -381,6 +383,11 @@ export class Game {
         }
         return loadTexture(`/static/assets/images/${texture}`, this.assets)
     }
+
+	getGridSquareFromPosition(gridPosition: ex.Vector): grid.GridSquare
+	{
+		return this.grid.squares[gridPosition.x][gridPosition.y]
+	}
 
 	getActiveVisibleCoordinates(gridPosition: ex.Vector): boolean
 	{

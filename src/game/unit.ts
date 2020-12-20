@@ -15,6 +15,7 @@
 import * as ex from "excalibur"
 import * as player from "./player"
 import * as unit from "./unit"
+import * as grid from "./grid"
 
 export enum UnitType {
     contTower = 0,
@@ -40,6 +41,7 @@ export interface UnitCallbacks {
     loadTexture: (type: UnitType) => ex.Texture,
     placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
 	getPlayerByID: (id: number) => player.Player
+	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 }
 
 export class Edge extends ex.Actor {
@@ -196,7 +198,7 @@ export class MobileCombatUnit extends CombatUnit {
 		}
 
 
-		this.movementCooldown = this.speed
+		this.movementCooldown = this.speed*this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		let result = this.callbacks.placeOnGrid(this.gridPosition)
 		this.pos = new ex.Vector(result.x, result.y)
 			
