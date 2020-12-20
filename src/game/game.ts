@@ -354,6 +354,8 @@ export class Game {
 
 		this.shotTextures[unit.ShotType.ratShot] = loadTexture("Rat_tail.png", this.assets)
 		this.shotTextures[unit.ShotType.towerShot] = loadTexture("Projectile2.png", this.assets)
+		this.shotTextures[2] = loadTexture("Rat_tail2.png", this.assets)
+		this.shotTextures[3] = loadTexture("Rat_tailbig.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
@@ -364,6 +366,13 @@ export class Game {
 		return this.textures[type]
     }
 	getShotTexture(type: unit.ShotType): ex.Texture {
+		if (type == unit.ShotType.ratShot)
+		{
+			let textureVersion = utils.randomNumber(0,3)
+			if (textureVersion == 0) { return this.shotTextures[0] }
+			else if (textureVersion == 1) { return this.shotTextures[2] }
+			else if (textureVersion == 2) { return this.shotTextures[3] }
+		}
 		return this.shotTextures[type]
 	}
 
