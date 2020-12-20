@@ -1,11 +1,11 @@
 {
     "flat": {
-        "backgroundColorHexString": "#4FEB34",
+        "backgroundColorHexString": "#346734",
         "movementCost": 1,
         "elevation": 0
     },
     "hill": {
-        "backgroundColorHexString": "#BCBFBB",
+        "backgroundColorHexString": "#283028",
         "movementCost": 2,
         "elevation": 1
     }
