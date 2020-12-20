@@ -103,7 +103,6 @@ export class Game {
         this.mouseDownHandler = this.mouseDownHandler.bind(this)
         this.mouseUpHandler = this.mouseUpHandler.bind(this)
         this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
-        this.keyHoldHandler = this.keyHoldHandler.bind(this)
         this.setupHandlers()
     }
 
@@ -111,7 +110,6 @@ export class Game {
         this.engine.input.pointers.primary.on('down', this.mouseDownHandler)
         this.engine.input.pointers.primary.on('up', this.mouseUpHandler)
         this.engine.input.pointers.primary.on('move', this.mouseMoveHandler)
-        this.engine.input.keyboard.on('hold', this.keyHoldHandler)
     }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
@@ -124,10 +122,6 @@ export class Game {
 
     mouseMoveHandler(event: ex.Input.PointerMoveEvent) {
         this.grid.mouseMoveHandler(event)
-    }
-
-    keyHoldHandler(event: ex.Input.KeyEvent) {
-        this.activePlayer.keyHoldHandler(event)
     }
 
     start() {
