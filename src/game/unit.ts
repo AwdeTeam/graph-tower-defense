@@ -87,6 +87,7 @@ export class Unit extends ex.Actor {
         this.gridPosition = gridPosition
         this.type = type
         this.callbacks = callbacks
+        this.traits = [] // Oh boy am I not a fan of this solution...
     }
 
     public getPixelPosition(): ex.Vector {
@@ -99,6 +100,8 @@ export class Unit extends ex.Actor {
 
     public onPostDraw() {
         this.pos = this.getPixelPosition()
+        this.isOffScreen = false
+        this.visible = true
     }
 }
 
