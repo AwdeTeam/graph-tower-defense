@@ -31,6 +31,9 @@ const defaultConfig = {
             height: 12,
             squareSize: 50,
         },
+    },
+    settings: {
+        fogOfWar: false,
     }
 }
 
@@ -88,6 +91,10 @@ export class Game {
 
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
 
+    setupInitialUnits() {
+
+    }
+
     getUnitTexture(type: unit.UnitType): ex.Texture {
         let texture: string = ""
         switch (type) {
@@ -116,6 +123,9 @@ export class Game {
 
 	getActiveVisibleCoordinates(x: number, y: number): boolean
 	{
+        if (!this.config.settings.fogOfWar) {
+            return true
+        }
 		for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
 			let square = this.activePlayer.visibleCoordinates[i]
 			if (square[0] == x && square[1] == y) { return true; }
