@@ -75,6 +75,7 @@ export class Game {
 		this.aiPlayer = new player.Player(1, "ai")
 		this.players = []
 		this.players.push(this.activePlayer)
+		this.players.push(this.aiPlayer)
         this.grid = new grid.Grid(
             new ex.Vector(this.config.game.grid.width, this.config.game.grid.height),
             this.config.game.grid.squareSize,
@@ -290,6 +291,21 @@ export class Game {
 				getOtherPlayer: this.getOtherPlayer.bind(this)
 			})
 		}
+		else if (type == unit.UnitType.gunTower)
+		{
+			newUnit = new unit.CombatUnit(p.id, pos, type, {
+				loadTexture: this.getUnitTexture.bind(this),
+				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
+				getPlayerByID: this.getPlayerByID.bind(this),
+				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
+				shoot: this.shoot.bind(this),
+			},
+			{
+				findNearestOwned: this.findNearestOwned.bind(this),
+				getOtherPlayer: this.getOtherPlayer.bind(this)
+			})
+			
+		}
 		else
 		{
 			newUnit = new unit.Unit(p.id, pos, type, callbacks)
@@ -303,7 +319,8 @@ export class Game {
 
     setupInitialUnits() {
 		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower)
-		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
+		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
+		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower)
 
 		let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
 		this.engine.add(edge)
@@ -314,8 +331,8 @@ export class Game {
 
 	spawnEnemy() {
 		console.log("Spawned enemy")
-		//const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
-		//this.addTimer(timer)
+		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
+		this.addTimer(timer)
 
 		let x = utils.randomNumber(0,10)
 		let y = utils.randomNumber(0,10)

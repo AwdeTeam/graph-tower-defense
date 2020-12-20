@@ -126,12 +126,14 @@ export class CombatUnit extends Unit {
     public attRate: number
     public target: Unit
 	combatUnitCallbacks: CombatUnitCallbacks
+	shotCooldown: number
 
     constructor(playerID: number, gridPosition: ex.Vector,
         type: UnitType, unitCallbacks: UnitCallbacks, callbacks: CombatUnitCallbacks)
 	{
 		super(playerID, gridPosition, type, unitCallbacks)
 		this.combatUnitCallbacks = callbacks
+		this.shotCooldown = 1000
 	}
 
 	acquireTarget(): unit.Unit
@@ -142,6 +144,26 @@ export class CombatUnit extends Unit {
 		)
 
 		return targetUnit
+	}
+	
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+		let target = this.acquireTarget()
+		if (target != null) 
+		{ 
+			let targetPos = target.gridPosition
+			let shootingCoords = this.callbacks.placeOnGrid(targetPos)
+			this.tryShoot(shootingCoords, delta)
+		}
+	}
+	
+	tryShoot(targetPos: ex.Vector, delta: number)
+	{
+		// can we shoot?
+		this.shotCooldown -= delta
+		if (this.shotCooldown > 0) { return }
+
+		this.callbacks.shoot(this, targetPos)
+		this.shotCooldown = 1000
 	}
 }
 
@@ -156,7 +178,6 @@ export class MobileCombatUnit extends CombatUnit {
     protected gridPathTarget: ex.Vector
     //protected mobileCallbacks: MobileUnitCallbacks
 	movementCooldown: number
-	shotCooldown: number
 
     constructor(
 		playerID: number,
@@ -170,7 +191,6 @@ export class MobileCombatUnit extends CombatUnit {
         ///this.mobileCallbacks = mobileCallbacks
 		this.speed = 1000
 		this.movementCooldown = 1000
-		this.shotCooldown = 1000
     }
 
 	// returns true if already at target 
@@ -224,16 +244,6 @@ export class MobileCombatUnit extends CombatUnit {
             this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		this.pos = this.callbacks.placeOnGrid(this.gridPosition)
 		return false
-	}
-
-	tryShoot(targetPos: ex.Vector, delta: number)
-	{
-		// can we shoot?
-		this.shotCooldown -= delta
-		if (this.shotCooldown > 0) { return }
-
-		this.callbacks.shoot(this, targetPos)
-		this.shotCooldown = 1000
 	}
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
