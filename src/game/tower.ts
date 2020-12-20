@@ -41,8 +41,8 @@ export class GridTower extends Unit{
 
     public sprite: string
 
-    constructor(gridPosition: ex.Vector, type: UnitType, callbacks: UnitCallbacks){
-        super(gridPosition, type, callbacks)
+    constructor(playerID: number, gridPosition: ex.Vector, type: UnitType, callbacks: UnitCallbacks){
+        super(playerID, gridPosition, type, callbacks)
         let protoTower
         switch(this.type){
             case UnitType.contTower: {
