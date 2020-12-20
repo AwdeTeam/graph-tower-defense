@@ -63,7 +63,7 @@ export class MusicManager {
 	playNextSong()
 	{
 		console.log("Playing " + this.nextSong.path + "...")
-		this.nextSong.sound.play()
+		this.nextSong.sound.play(.1)
 		const timer = new ex.Timer({ fcn: () => { 
 			this.playNextSong()
 		}, interval: this.nextSong.time })
