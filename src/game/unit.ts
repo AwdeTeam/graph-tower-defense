@@ -238,6 +238,7 @@ export class MobileCombatUnit extends CombatUnit {
 
 export interface ShotCallbacks {
     loadShotTexture: (type: ShotType) => ex.Texture,
+	getActivePlayer: () => player.Player
 }
 
 export enum ShotType {
@@ -251,6 +252,7 @@ export class Shot extends ex.Actor
 	type: ShotType
 	callbacks: ShotCallbacks
 	target: ex.Vector
+	prevPanOffset: ex.Vector
 	
     constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number,
         type: ShotType, callbacks: ShotCallbacks)
@@ -258,18 +260,27 @@ export class Shot extends ex.Actor
 		let inbetween = targetPos.sub(currentPos)
 
 		let inferiorRadians = inbetween.toAngle() + Math.PI / 2
+		inbetween = inbetween.normalize().scale(100)
 		
 		super({x: currentPos.x, y: currentPos.y, rotation: inferiorRadians, vel: inbetween})
         this.target = targetPos
 		this.ownerID = ownerID
 		this.type = type
 		this.callbacks = callbacks
+		this.prevPanOffset = this.callbacks.getActivePlayer().panOffset
 	}
 
 	onInitialize() { this.addDrawing(this.callbacks.loadShotTexture(this.type)) }
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
         const collisionDistance = 8
+
+		let currentOffset = this.callbacks.getActivePlayer().panOffset
+		let actualOffset = currentOffset.sub(this.prevPanOffset)
+		this.pos = this.pos.add(actualOffset)
+        this.target = this.target.add(actualOffset)
+		this.prevPanOffset = currentOffset
+
         if (this.pos.sub(this.target).magnitude() < collisionDistance) {
             this.kill()
         }

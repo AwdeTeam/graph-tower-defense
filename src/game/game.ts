@@ -146,6 +146,11 @@ export class Game {
 	// 		
 	// }
 
+	getActivePlayer(): player.Player
+	{
+		return this.activePlayer
+	}
+
 	getPlayerByID(id: number): player.Player
 	{
 		if (id == 1) { return this.aiPlayer }
@@ -390,6 +395,7 @@ export class Game {
 		}
 		let shot = new unit.Shot(originatingUnit.pos, targetPos, originatingUnit.playerID, shotType, {
 			loadShotTexture: this.getShotTexture.bind(this),
+			getActivePlayer: this.getActivePlayer.bind(this),
 		})
 		this.engine.add(shot)
 	}
