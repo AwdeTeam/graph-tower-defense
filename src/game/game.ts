@@ -108,9 +108,12 @@ export class Game {
 			loadTexture: this.getUnitTexture.bind(this),
 			placeOnGrid: this.placeUnitOnGrid.bind(this)
 		})
+
+		let edge = new unit.Edge(testUnit, testUnit2, { getGridSize: this.getGridSize.bind(this) })
 		
 		this.engine.add(testUnit)
 		this.engine.add(testUnit2)
+		this.engine.add(edge)
     }
 
 	loadTextures() {
@@ -124,6 +127,8 @@ export class Game {
 		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
 	}
+
+	getGridSize() { return this.config.game.grid.squareSize }
 
 	placeUnitOnGrid(gridPosition: ex.Vector): ex.ActorArgs
 	{

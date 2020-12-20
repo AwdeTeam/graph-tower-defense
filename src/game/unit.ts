@@ -29,10 +29,49 @@ export enum ResType{
     iron,
 }
 
+export interface EdgeCallbacks {
+	getGridSize: () => number
+}
+
 export interface UnitCallbacks {
     loadTexture: (type: UnitType) => ex.Texture,
     placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
 }
+
+
+export class Edge extends ex.Actor {
+	unit1: Unit
+	unit2: Unit
+	callbacks: EdgeCallbacks
+	
+	constructor(unit1: Unit, unit2: Unit, callbacks: EdgeCallbacks) {
+		super()
+		this.unit1 = unit1
+		this.unit2 = unit2
+		this.callbacks = callbacks
+	}
+
+	draw(ctx: CanvasRenderingContext2D, delta: number) {
+		ctx.beginPath();
+		let point1 = this.getPoint(this.unit1)
+		let point2 = this.getPoint(this.unit2)
+		ctx.moveTo(point1[0], point1[1])
+		ctx.lineTo(point2[0], point2[1])
+		ctx.lineWidth = 5
+		ctx.stroke()
+	}
+
+	getPoint(unit: Unit) {
+
+		let size = this.callbacks.getGridSize()
+		let half = size / 2
+		let x = unit.gridPosition.x * size + half
+		let y = unit.gridPosition.y * size + half
+
+		return [x, y]
+	}
+}
+
 
 export class Unit extends ex.Actor {
     public type: UnitType
