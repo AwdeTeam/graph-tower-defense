@@ -17,26 +17,25 @@ import * as ex from "excalibur"
 import * as terrains from "./data/terrains.json"
 
 export interface GridCallbacks {
-    getActiveVisibleCoordinates: (x: number, y: number) => boolean
+    getActiveVisibleCoordinates: (gridPosition: ex.Vector) => boolean
+    getOffset: () => ex.Vector
 }
 
 export class Grid extends ex.Actor {
 
 	// array of squares
 	squares: GridSquare[][]
-	sizeX: number
-	sizeY: number
-	gridSize: number
+	size: ex.Vector
+	cellSideLength: number
     terrainGenerator: (square: GridSquare) => TerrainType
     callbacks: GridCallbacks
 	
-    constructor(sizeX: number, sizeY: number, gridSize: number,
+    constructor(size: ex.Vector, cellSideLength: number,
         terrainGenerator: (square: GridSquare) => TerrainType,
         callbacks: GridCallbacks) {
 		super({ x: 0, y: 0 })
-		this.sizeX = sizeX
-		this.sizeY = sizeY
-		this.gridSize = gridSize
+		this.size = size
+		this.cellSideLength = cellSideLength
 		this.squares = []
         this.terrainGenerator = terrainGenerator
         this.callbacks = callbacks
@@ -44,12 +43,14 @@ export class Grid extends ex.Actor {
 
 	onInitialize() {
 		// create list of gridsquares
-		for (let x = 0; x < this.sizeX; x++)
+		for (let x = 0; x < this.size.x; x++)
 		{
 			this.squares[x] = []
-			for (let y = 0; y < this.sizeY; y++)
+			for (let y = 0; y < this.size.y; y++)
 			{
-				let gridSquare: GridSquare = new GridSquare(x, y, this.gridSize, this.callbacks)
+                let gridSquare: GridSquare = new GridSquare(new ex.Vector(x, y),
+                    this.cellSideLength,
+                    this.callbacks)
 				gridSquare.enableCapturePointer = true
 				gridSquare.capturePointer.captureMoveEvents = true
 				gridSquare.on("pointerenter", gridSquare.pointerEnter)
@@ -61,9 +62,9 @@ export class Grid extends ex.Actor {
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
-		for (let x = 0; x < this.sizeX; x++)
+		for (let x = 0; x < this.size.x; x++)
 		{
-			for (let y = 0; y < this.sizeY; y++) 
+			for (let y = 0; y < this.size.y; y++) 
 			{
 				this.squares[x][y].draw(ctx, delta)
 			}
@@ -72,18 +73,17 @@ export class Grid extends ex.Actor {
 }
 
 export class GridSquare extends ex.Actor { 
-	x: number
-	y: number
-	gridSize: number
+    gridPosition: ex.Vector
+	cellSideLength: number
     terrain: Terrain
 	callbacks: GridCallbacks
 	borderColor: string
 	
-	constructor(x: number, y: number, gridSize: number, callbacks: GridCallbacks) {
-		super({x: x, y: y, width: gridSize, height: gridSize})
-		this.x = x
-		this.y = y
-		this.gridSize = gridSize
+	constructor(gridPosition: ex.Vector, cellSideLength: number, callbacks: GridCallbacks) {
+        let localPos = gridPosition.scale(cellSideLength)
+		super({x: localPos.x, y: localPos.y, width: cellSideLength, height: cellSideLength})
+        this.gridPosition = gridPosition
+		this.cellSideLength = cellSideLength
 		this.callbacks = callbacks
 
 		//this.enableCapturePointer
@@ -91,8 +91,9 @@ export class GridSquare extends ex.Actor {
 		// this.on("pointerenter", function (ev) { this.pointerEnter(ev) })
 		// this.on("pointerleave", this.pointerLeave)
 		this.enableCapturePointer = true
+        console.log(localPos)
+        console.log(this.getLocalPosition())
 	}
-
 
 	pointerEnter(ev: any) {
 		console.log("POINTER INSIDE")
@@ -103,19 +104,23 @@ export class GridSquare extends ex.Actor {
 		console.log("POINTER OUTSIDE")
 		this.borderColor = "#000"
 	}
-	
+
+    getLocalPosition(): ex.Vector {
+        return this.gridPosition.scale(this.cellSideLength).add(this.callbacks.getOffset())
+    }
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
-		if (!this.callbacks.getActiveVisibleCoordinates(this.x, this.y)) {
+        let localPos = this.getLocalPosition()
+		if (!this.callbacks.getActiveVisibleCoordinates(this.gridPosition)) {
 			ctx.fillStyle = "#222"
-			ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
+            ctx.fillRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
 		}
 		else if (this.terrain) {
             ctx.fillStyle = this.terrain.backgroundColorHexString
-            ctx.fillRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
+            ctx.fillRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
         }
 		ctx.strokeStyle = this.borderColor
-		ctx.strokeRect(this.x*this.gridSize, this.y*this.gridSize, this.gridSize, this.gridSize)
+        ctx.strokeRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
 	}
 }
 
