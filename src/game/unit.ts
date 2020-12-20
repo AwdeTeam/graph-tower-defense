@@ -43,6 +43,7 @@ export interface UnitCallbacks {
 	getPlayerByID: (id: number) => player.Player
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
+	convertCellToPixels: (gridCell: ex.Vector) => ex.Vector
 }
 
 export class Edge extends ex.Actor {
@@ -227,11 +228,12 @@ export class MobileCombatUnit extends CombatUnit {
 		if (target != null) 
 		{ 
 			let targetPos = target.gridPosition
-			//let result = this.moveTowardsTarget(targetPos, delta)
-			//if (result)
-			//{
-			this.tryShoot(targetPos, delta)
-			//}
+			let result = this.moveTowardsTarget(targetPos, delta)
+			if (result)
+			{
+				let shootingCoords = this.callbacks.convertCellToPixels(targetPos)
+				this.tryShoot(shootingCoords, delta)
+			}
 		}
 		
 
@@ -252,6 +254,7 @@ export class MobileCombatUnit extends CombatUnit {
 
 export interface ShotCallbacks {
     loadShotTexture: (type: ShotType) => ex.Texture,
+	convertCellToPixels: (gridCell: ex.Vector) => ex.Vector
 }
 
 export enum ShotType {
@@ -268,7 +271,6 @@ export class Shot extends ex.Actor
 	constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number, type: ShotType, callbacks: ShotCallbacks)
 	{
 		let inbetween = targetPos.sub(currentPos)
-		console.log(inbetween)
 
 		let inferiorRadians = inbetween.toAngle() + Math.PI / 2
 		
