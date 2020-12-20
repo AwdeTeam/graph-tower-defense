@@ -107,6 +107,11 @@ export class Game {
         this.mouseUpHandler = this.mouseUpHandler.bind(this)
         this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
         this.setupHandlers()
+
+		this.activePlayer.initUI(this.engine,  this.config.display.height,this.config.display.width,
+		{
+			getUnitTexture: this.getUnitTexture.bind(this)
+		})
     }
 
     setupHandlers() {
@@ -116,6 +121,7 @@ export class Game {
     }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
+		console.log("down?")
         this.grid.mouseDownHandler(event)
     }
 
@@ -347,8 +353,8 @@ export class Game {
 
 	spawnEnemy() {
 		console.log("Spawned enemy")
-		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
-		this.addTimer(timer)
+		//const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
+		//this.addTimer(timer)
 
 		let x = utils.randomNumber(0,10)
 		let y = utils.randomNumber(0,10)

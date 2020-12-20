@@ -14,6 +14,7 @@
 
 import * as ex from "excalibur"
 import * as unit from "./unit"
+import * as ui from "./ui"
 
 interface ResourceCollection {
     mana: number
@@ -37,6 +38,8 @@ export class Player extends ex.Actor {
 	visibleCoordinates: ex.Vector[]
 	units: unit.Unit[]
 
+	ts: ui.towerSelection
+
     constructor (id: number, name: string) {
         super()
         this.id = id
@@ -49,6 +52,15 @@ export class Player extends ex.Actor {
         this.panOffset = new ex.Vector(0, 0)
 		this.units = []
     }
+
+
+	initUI(engine: ex.Engine, height: number, width: number, callbacks: ui.UICallbacks)
+	{
+		this.ts = new ui.towerSelection(engine, height, width, callbacks)
+		//engine.add(ts)
+	}
+	
+	
 
 	checkForUnitOnSquare(square: ex.Vector): unit.Unit
 	{
@@ -79,4 +91,20 @@ export class Player extends ex.Actor {
     }
 
 	addUnit(unit: unit.Unit) { this.units.push(unit) }
+	
+	
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+        //this.hover = true
+    }
+
+    mouseUpHandler(event: ex.Input.PointerUpEvent) {
+
+    }
+
+	mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
+		this.ts.mouseEnterHandler(event)
+	}
+	
+	mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
+	}
 }
