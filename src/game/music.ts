@@ -28,6 +28,7 @@ export class MusicManager {
 	constructor(callbacks: MusicCallbacks) {
 		this.callbacks = callbacks
 		this.songs = {}
+		this.nextSong = null
 	}
 
 
@@ -36,24 +37,55 @@ export class MusicManager {
 		console.log("Adding resources...")
 
 		this.songs["base"] = new Song("base.mp3", 28800, loader)
-		this.songs["1_normal"] = new Song("1_normal.mp3", 28800, loader)
 
-		console.log(this.songs)
+		for (let i = 1; i < 8; i++)
+		{
+			this.songs[i + "_normal"] = new Song(i + "_normal.mp3", 28800, loader)
+			this.songs[i + "_minus"] = new Song(i + "_minus.mp3", 28800, loader)
+			this.songs[i + "_plus"] = new Song(i + "_plus.mp3", 28800, loader)
+		}
+		this.songs["ALL_normal"] = new Song("ALL_normal.mp3", 28800, loader)
+		this.songs["ALL_minus"] = new Song("ALL_minus.mp3", 28800, loader)
+		this.songs["ALL_plus"] = new Song("ALL_plus.mp3", 28800, loader)
 
 		
-		this.nextSong = this.songs["base"]
+		let nextName = this.chooseRandomSongName()
+		console.log("Next:" + nextName)
+		this.nextSong = this.songs[nextName]
+	}
+
+	// lower bound inclusive, upper bound exclusive
+	randomNumber(min: number, max: number): number
+	{
+		return Math.floor(Math.random() * (max - min) + min);
 	}
 
 	playNextSong()
 	{
+		console.log("Playing " + this.nextSong.path + "...")
 		this.nextSong.sound.play()
 		const timer = new ex.Timer({ fcn: () => { 
-			console.log("Playing next song...")
 			this.playNextSong()
-		}, interval: this.nextSong.time})
+		}, interval: this.nextSong.time })
 		this.callbacks.addTimer(timer)
 
 		// randomization here
-		this.nextSong = this.songs["1_normal"]
+		this.nextSong = this.songs[this.chooseRandomSongName()]
+	}
+
+	chooseRandomSongName(): string
+	{
+		// choose variant
+		let num = this.randomNumber(1, 9)
+		let numString = num.toString()
+		if (num == 8) { numString = "ALL" }
+
+		// choose pitch
+		let pitch = this.randomNumber(0, 3) 
+		let pitchString = "normal"
+		if (pitch == 0) { pitchString = "minus" }
+		else if (pitch == 2) { pitchString = "plus" }
+
+		return numString + "_" + pitchString
 	}
 }
