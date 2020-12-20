@@ -175,13 +175,26 @@ export class MobileCombatUnit extends CombatUnit {
 		if (Math.abs(diffX) > Math.abs(diffY)) { movement = "x" }
 
 		// move left
-		if (movement == "x" && diffX < 0) { this.gridPosition.x -= 1 }
+		if (movement == "x" && diffX < 0) {
+			this.gridPosition.x -= 1
+			this.rotation = -1.6
+		}
 		// move right
-		else if (movement == "x" && diffX > 0) { this.gridPosition.x += 1 }
+		else if (movement == "x" && diffX > 0) {
+			this.gridPosition.x += 1
+			this.rotation = 1.6
+		}
 		// move up
-		else if (movement == "y" && diffY > 0) { this.gridPosition.y += 1 }
+		else if (movement == "y" && diffY > 0) {
+			this.gridPosition.y += 1
+			this.rotation = 3.14
+		}
 		// move down
-		else if (movement == "y" && diffY < 0) { this.gridPosition.y -= 1 }
+		else if (movement == "y" && diffY < 0) {
+			this.gridPosition.y -= 1
+			this.rotation = 0
+		}
+
 
 		this.movementCooldown = this.speed
 		let result = this.callbacks.placeOnGrid(this.gridPosition)
