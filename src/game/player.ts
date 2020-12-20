@@ -13,6 +13,7 @@
  */
 
 import * as ex from "excalibur"
+import * as unit from "./unit"
 
 interface ResourceCollection {
     mana: number
@@ -33,7 +34,8 @@ export class Player extends ex.Actor {
     resources: ResourceCollection
     ownedTowers: MockTower[]
     panOffset: ex.Vector
-	visibleCoordinates: [number, number][]
+	visibleCoordinates: ex.Vector[]
+	units: unit.Unit[]
 
     constructor (id: number, name: string) {
         super()
@@ -43,11 +45,22 @@ export class Player extends ex.Actor {
         this.resources = {
             mana: 0,
         }
-		this.visibleCoordinates = [[0, 0], [0, 1], [1, 0]]
+		this.visibleCoordinates = [new ex.Vector(0,0)]
         this.panOffset = new ex.Vector(0, 0)
     }
+
+	checkForUnitOnSquare(square: ex.Vector): unit.Unit
+	{
+		for (let i = 0; i < this.units.length; i++)
+		{
+			if (this.units[i].gridPosition.equals(square)) { return this.units[i] }
+		}
+		return null
+	}
 
     public onPreUpdate(engine: ex.Engine, delta: number) {
 
     }
+
+	addUnit(unit: unit.Unit) { this.units.push(unit) }
 }

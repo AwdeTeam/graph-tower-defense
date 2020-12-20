@@ -22,6 +22,7 @@ export enum UnitType {
     drilTower,
     gunTower,
     basicUnit,
+	mob,
 }
 
 export enum ResType{
@@ -78,6 +79,7 @@ export class Unit extends ex.Actor {
     public health: number
     public gridPosition: ex.Vector
     protected callbacks: UnitCallbacks
+	playerID: number // ?
 
     constructor(
             gridPosition: ex.Vector,

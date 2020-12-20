@@ -19,6 +19,7 @@ import * as grid from "./grid"
 import * as unit from "./unit"
 import * as textures from "./data/textures.json"
 import {MusicManager} from "./music"
+import * as utils from "./util"
 
 const defaultConfig = {
     display: {
@@ -51,6 +52,7 @@ export class Game {
 	grid: grid.Grid
 	activePlayer: player.Player
 	aiPlayer: player.Player
+	players: player.Player[]
 	manager: MusicManager
 	textures: ex.Texture[]
 
@@ -65,6 +67,7 @@ export class Game {
             canvasElement: this.canvas,
         })
 		this.activePlayer = new player.Player(0, "user")
+		this.players.push(this.activePlayer)
         this.grid = new grid.Grid(
             new ex.Vector(this.config.game.grid.width, this.config.game.grid.height),
             this.config.game.grid.squareSize,
@@ -98,6 +101,77 @@ export class Game {
 
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
 
+
+	// getGridCellPos(globalPosition: ex.Vector): ex.Vector
+	// {
+	// 	
+	// }
+
+	findNearestOwned(gridPosition: ex.Vector, ownerID: number): unit.Unit
+	{
+		// find player
+		let player = null
+		for (let i = 0; i < this.players.length; i++)
+		{
+			if (this.players[i].id == ownerID) {
+				player = this.players[i]
+				break
+			}
+		}
+
+		
+		// ----
+		// bfs
+		// ----
+
+		
+		let frontier: ex.Vector[] = [gridPosition]
+		let searched: ex.Vector[] = []
+
+
+		let found = false
+		while (found == false)
+		{
+			let removeFrontier: number[] = []
+
+			// TODO: no checking for grid squares out of grid, minor perform optimization 
+			
+			// expand frontier
+			for (let i = 0; i < frontier.length; i++) {
+				let pos = frontier[i]
+
+				let left = new ex.Vector(gridPosition.x - 1, gridPosition.y)
+				let right = new ex.Vector(gridPosition.x + 1, gridPosition.y)
+				let up = new ex.Vector(gridPosition.x, gridPosition.y + 1)
+				let down = new ex.Vector(gridPosition.x, gridPosition.y - 1)
+
+				if (!utils.isPosIn(left, searched) && !utils.isPosIn(left, frontier)) { frontier.push(left) }
+				if (!utils.isPosIn(right, searched) && !utils.isPosIn(right, frontier)) { frontier.push(right) }
+				if (!utils.isPosIn(up, searched) && !utils.isPosIn(up, frontier)) { frontier.push(up) }
+				if (!utils.isPosIn(down, searched) && !utils.isPosIn(down, frontier)) { frontier.push(down) }
+				
+				searched.push(pos)
+				removeFrontier.push(i)
+			}
+
+			// remove all previous frontier items
+			for (let i = removeFrontier.length - 1; i >= 0; i--)
+			{
+				if (removeFrontier.includes(i)) { frontier.splice(i, 1) }
+			}
+
+			// search frontier
+			for (let i = 0; i < frontier.length; i++)
+			{
+				let out = player.checkForUnitOnSquare(frontier[i])
+				if (out != null) { return out }
+			}
+		}
+		return null
+	}
+
+	
+
     setupInitialUnits() {
 		let testUnit = new unit.Unit(new ex.Vector(0, 0), unit.UnitType.contTower, {
 			loadTexture: this.getUnitTexture.bind(this),
@@ -126,6 +200,7 @@ export class Game {
 		this.textures[unit.UnitType.drilTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.mob] = loadTexture("Rat.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
@@ -174,10 +249,11 @@ export class Game {
         if (!this.config.settings.fogOfWar) {
             return true
         }
-		for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
-			let square = this.activePlayer.visibleCoordinates[i]
-			if (square[0] == gridPosition.x && square[1] == gridPosition.y) { return true; }
-		}
-		return false
+		return utils.isPosIn(gridPosition, this.activePlayer.visibleCoordinates)
+		// for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
+		// 	let square = this.activePlayer.visibleCoordinates[i]
+		// 	if (square[0] == gridPosition.x && square[1] == gridPosition.y) { return true; }
+		// }
+		// return false
 	}
 }
