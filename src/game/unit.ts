@@ -30,7 +30,7 @@ export enum ResType{
 }
 
 export interface UnitCallbacks {
-    loadTexture: (type: UnitType) => ex.Texture
+    loadTexture: (type: UnitType) => ex.Texture,
     placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
 }
 
