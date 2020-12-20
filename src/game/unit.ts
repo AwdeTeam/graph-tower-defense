@@ -154,8 +154,10 @@ export class MobileCombatUnit extends CombatUnit {
 
     public onPostUpdate() {
         //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
-		let targ = this.acquireTarget().gridPosition
-        let path = targ.sub(this.pos)
+		let targ = this.acquireTarget()
+		if (targ == null) { return }
+		let targPos = targ.gridPosition
+        let path = targPos.sub(this.pos)
         if (path.magnitude() > MobileCombatUnit.tolerance) {
             this.vel = path.normalize().scale(this.speed)
         } else {

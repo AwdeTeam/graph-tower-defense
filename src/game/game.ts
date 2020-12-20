@@ -56,6 +56,10 @@ export class Game {
 	manager: MusicManager
 	textures: ex.Texture[]
 
+	cachedNearestOwned: {gridPosition: ex.Vector, ownerID: number, out: unit.Unit, ttl: number}[]
+
+	debugHalt: boolean
+
     constructor(canvas: HTMLCanvasElement, config: any = defaultConfig) {
         console.log("Building game")
         let self = this
@@ -92,6 +96,11 @@ export class Game {
 
 		this.loadTextures()
 		this.setupInitialUnits()
+
+
+		this.cachedNearestOwned = []
+		
+		this.debugHalt = false
     }
 
     start() {
@@ -124,6 +133,30 @@ export class Game {
 
 	findNearestOwned(gridPosition: ex.Vector, ownerID: number): unit.Unit
 	{
+		if (this.debugHalt) { return null }
+
+
+		// search cache
+		for (let i = this.cachedNearestOwned.length - 1; i >= 0; i--)
+		{
+			let entry = this.cachedNearestOwned[i]
+			if (entry.gridPosition == gridPosition && entry.ownerID == ownerID)
+			{
+				if (entry.ttl > 0) 
+				{ 
+					entry.ttl--;
+					return entry.out
+				}
+				else
+				{
+					// remove entry
+					this.cachedNearestOwned.splice(i, 1)
+				}
+			}
+		}
+
+		
+		
 		// find player
 		let player = null
 		for (let i = 0; i < this.players.length; i++)
@@ -140,60 +173,108 @@ export class Game {
 		// bfs
 		// ----
 
+
 		
 		let frontier: ex.Vector[] = [gridPosition]
 		let searched: ex.Vector[] = []
 
 
-		let found = false
-		while (found == false)
+		let bfsIterations = 10
+		while (bfsIterations > 0)
 		{
 			let removeFrontier: number[] = []
 
 			// TODO: no checking for grid squares out of grid, minor perform optimization 
 			
 			// expand frontier
-			for (let i = 0; i < frontier.length; i++) {
+			let frontierLength = frontier.length
+			for (let i = 0; i < frontierLength; i++) {
 				let pos = frontier[i]
+				//console.log("Expanding from " + pos.x.toString() + "," + pos.y.toString())
 
-				let left = new ex.Vector(gridPosition.x - 1, gridPosition.y)
-				let right = new ex.Vector(gridPosition.x + 1, gridPosition.y)
-				let up = new ex.Vector(gridPosition.x, gridPosition.y + 1)
-				let down = new ex.Vector(gridPosition.x, gridPosition.y - 1)
+				let left = new ex.Vector(pos.x - 1, pos.y)
+				let right = new ex.Vector(pos.x + 1, pos.y)
+				let up = new ex.Vector(pos.x, pos.y + 1)
+				let down = new ex.Vector(pos.x, pos.y - 1)
 
-				if (!utils.isPosIn(left, searched) && !utils.isPosIn(left, frontier)) { frontier.push(left) }
-				if (!utils.isPosIn(right, searched) && !utils.isPosIn(right, frontier)) { frontier.push(right) }
-				if (!utils.isPosIn(up, searched) && !utils.isPosIn(up, frontier)) { frontier.push(up) }
-				if (!utils.isPosIn(down, searched) && !utils.isPosIn(down, frontier)) { frontier.push(down) }
+				if (!utils.isPosIn(left, searched) && !utils.isPosIn(left, frontier)) { 
+					let newlen = frontier.push(left)
+				}
+				if (!utils.isPosIn(right, searched) && !utils.isPosIn(right, frontier)) {
+					let newlen = frontier.push(right)
+				}
+				if (!utils.isPosIn(up, searched) && !utils.isPosIn(up, frontier)) {
+					let newlen = frontier.push(up)
+				}
+				if (!utils.isPosIn(down, searched) && !utils.isPosIn(down, frontier)) {
+					frontier.push(down)
+				}
 				
 				searched.push(pos)
 				removeFrontier.push(i)
 			}
-
+			
 			// remove all previous frontier items
-			for (let i = removeFrontier.length - 1; i >= 0; i--)
+			for (let i = frontier.length - 1; i >= 0; i--)
 			{
 				if (removeFrontier.includes(i)) { frontier.splice(i, 1) }
 			}
+			
 
 			// search frontier
 			for (let i = 0; i < frontier.length; i++)
 			{
 				let out = player.checkForUnitOnSquare(frontier[i])
-				if (out != null) { return out }
+				if (out != null) 
+				{ 
+					// add new cache entry
+					console.log("Cached entity:")
+					console.log(out)
+					this.cachedNearestOwned.push({ 
+						gridPosition: gridPosition, 
+						ownerID: ownerID,
+						out: out,
+						ttl: 200
+					})
+					return out 
+				}
 			}
+			bfsIterations--
 		}
+		this.cachedNearestOwned.push({ 
+			gridPosition: gridPosition, 
+			ownerID: ownerID,
+			out: null,
+			ttl: 200
+		})
+		
 		return null
 	}
 
 
 	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
 	{
-		let newUnit = new unit.Unit(p.id, pos, type, {
-			loadTexture: this.getUnitTexture.bind(this),
-			placeOnGrid: this.placeUnitOnGrid.bind(this),
-			getPlayerByID: this.getPlayerByID.bind(this),
-		})
+		let newUnit = null
+		if (type == unit.UnitType.mob)
+		{
+			newUnit = new unit.MobileCombatUnit(p.id, pos, type, {
+				loadTexture: this.getUnitTexture.bind(this),
+				placeOnGrid: this.placeUnitOnGrid.bind(this),
+				getPlayerByID: this.getPlayerByID.bind(this),
+			},
+			{
+				findNearestOwned: this.findNearestOwned.bind(this),
+				getOtherPlayer: this.getOtherPlayer.bind(this)
+			})
+		}
+		else
+		{
+			newUnit = new unit.Unit(p.id, pos, type, {
+				loadTexture: this.getUnitTexture.bind(this),
+				placeOnGrid: this.placeUnitOnGrid.bind(this),
+				getPlayerByID: this.getPlayerByID.bind(this),
+			})
+		}
 
 		p.units.push(newUnit)
 		this.engine.add(newUnit)
@@ -206,10 +287,9 @@ export class Game {
 		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
 
 		let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
-		
-		this.engine.add(unit1)
-		this.engine.add(unit2)
 		this.engine.add(edge)
+		
+		let enemey1 = this.createUnit(this.aiPlayer, new ex.Vector(12, 5), unit.UnitType.mob)
     }
 
 	loadTextures() {
