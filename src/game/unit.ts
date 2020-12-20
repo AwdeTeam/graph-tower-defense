@@ -253,6 +253,7 @@ export class MobileCombatUnit extends CombatUnit {
 
 export interface ShotCallbacks {
     loadShotTexture: (type: ShotType) => ex.Texture,
+	getActivePlayer: () => player.Player
 }
 
 export enum ShotType {
@@ -265,6 +266,7 @@ export class Shot extends ex.Actor
 	ownerID: number
 	type: ShotType
 	callbacks: ShotCallbacks
+	prevPanOffset: ex.Vector
 	
 	constructor(currentPos: ex.Vector, targetPos: ex.Vector, ownerID: number, type: ShotType, callbacks: ShotCallbacks)
 	{
@@ -277,7 +279,15 @@ export class Shot extends ex.Actor
 		this.ownerID = ownerID
 		this.type = type
 		this.callbacks = callbacks
+		this.prevPanOffset = this.callbacks.getActivePlayer().panOffset
 	}
 
 	onInitialize() { this.addDrawing(this.callbacks.loadShotTexture(this.type)) }
+	
+    onPostUpdate(engine: ex.Engine, delta: number) {
+		let currentOffset = this.callbacks.getActivePlayer().panOffset
+		let actualOffset = currentOffset.sub(this.prevPanOffset)
+		this.pos = this.pos.add(actualOffset)
+		this.prevPanOffset = currentOffset
+	}
 }
