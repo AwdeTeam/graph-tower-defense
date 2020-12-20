@@ -271,6 +271,7 @@ export class Shot extends ex.Actor
 		let inbetween = targetPos.sub(currentPos)
 
 		let inferiorRadians = inbetween.toAngle() + Math.PI / 2
+		inbetween = inbetween.normalize().scale(100)
 		
 		super({x: currentPos.x, y: currentPos.y, rotation: inferiorRadians, vel: inbetween})
 		this.ownerID = ownerID
