@@ -237,8 +237,9 @@ export class MobileCombatUnit extends CombatUnit {
 }
 
 export interface ShotCallbacks {
-    loadShotTexture: (type: ShotType) => ex.Texture,
+    loadShotTexture: (type: ShotType) => ex.Texture
 	getActivePlayer: () => player.Player
+    bulletCollision: (pixelPosition: ex.Vector, damange: number) => void
 }
 
 export enum ShotType {
@@ -284,5 +285,9 @@ export class Shot extends ex.Actor
         if (this.pos.sub(this.target).magnitude() < collisionDistance) {
             this.kill()
         }
+    }
+
+    public onPreKill() {
+        this.callbacks.bulletCollision(this.pos, 1)
     }
 }
