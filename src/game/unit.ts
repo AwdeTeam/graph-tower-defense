@@ -198,7 +198,6 @@ export class MobileCombatUnit extends CombatUnit {
 
         this.movementCooldown = this.speed*
             this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
-		let result = this.callbacks.placeOnGrid(this.gridPosition)
-		this.pos = new ex.Vector(result.x, result.y)
+		this.pos = this.callbacks.placeOnGrid(this.gridPosition)
     }
 }
