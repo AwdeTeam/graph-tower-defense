@@ -139,6 +139,7 @@ export class MobileCombatUnit extends CombatUnit {
     private static tolerance: 5 // Number of pixels we can be from the center to stop moving
     protected gridPathTarget: ex.Vector
     //protected mobileCallbacks: MobileUnitCallbacks
+	movementCooldown: number
 
     constructor(
 		playerID: number,
@@ -150,18 +151,55 @@ export class MobileCombatUnit extends CombatUnit {
     ) {
         super(playerID, gridPosition, type, callbacks, combatUnitCallbacks)
         ///this.mobileCallbacks = mobileCallbacks
+		this.speed = 1000
+		this.movementCooldown = 1000
     }
 
-    public onPostUpdate() {
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+		let target = this.acquireTarget()
+		if (target == null) { return }
+		let targetPos = target.gridPosition
+
+		// can we move?
+		this.movementCooldown -= delta
+		if (this.movementCooldown > 0) { return }
+
+		// calculate path
+		let diffX = targetPos.x - this.gridPosition.x
+		let diffY = targetPos.y - this.gridPosition.y
+
+		// TODO determine if in range to shoot
+
+		// determine whether next movement is in x or y axis
+		let movement = "y"
+		if (Math.abs(diffX) > Math.abs(diffY)) { movement = "x" }
+
+		// move left
+		if (movement == "x" && diffX < 0) { this.gridPosition.x -= 1 }
+		// move right
+		else if (movement == "x" && diffX > 0) { this.gridPosition.x += 1 }
+		// move up
+		else if (movement == "y" && diffY > 0) { this.gridPosition.y += 1 }
+		// move down
+		else if (movement == "y" && diffY < 0) { this.gridPosition.y -= 1 }
+
+		this.movementCooldown = this.speed
+		let result = this.callbacks.placeOnGrid(this.gridPosition)
+		this.pos = new ex.Vector(result.x, result.y)
+			
+		
+
+
+		
         //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
-		let targ = this.acquireTarget()
-		if (targ == null) { return }
-		let targPos = targ.gridPosition
-        let path = targPos.sub(this.pos)
-        if (path.magnitude() > MobileCombatUnit.tolerance) {
-            this.vel = path.normalize().scale(this.speed)
-        } else {
-            this.vel = new ex.Vector(0, 0)
-        }
+		//let targ = this.acquireTarget()
+		//if (targ == null) { return }
+		//let targPos = targ.gridPosition
+        //let path = targPos.sub(this.pos)
+        //if (path.magnitude() > MobileCombatUnit.tolerance) {
+        //    this.vel = path.normalize().scale(this.speed)
+        //} else {
+        //    this.vel = new ex.Vector(0, 0)
+        //}
     }
 }
