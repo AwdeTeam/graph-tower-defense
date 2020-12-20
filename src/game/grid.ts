@@ -106,7 +106,7 @@ export class Grid extends ex.Actor {
 	}
 }
 
-export class GridSquare extends ex.Actor { 
+export class GridSquare extends ex.Actor {
     gridPosition: ex.Vector
 	cellSideLength: number
     terrain: Terrain
