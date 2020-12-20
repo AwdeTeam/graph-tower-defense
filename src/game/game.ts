@@ -395,6 +395,10 @@ export class Game {
 		// return false
 	}
 
+    bulletCollision(pixelPosition: ex.Vector, damage: number) {
+        let cell = this.grid.getGridCell(pixelPosition)
+    }
+
 	shoot(originatingUnit: unit.Unit, targetPos: ex.Vector)
 	{
 		let shotType = unit.ShotType.towerShot
@@ -405,6 +409,7 @@ export class Game {
 		let shot = new unit.Shot(originatingUnit.pos, targetPos, originatingUnit.playerID, shotType, {
 			loadShotTexture: this.getShotTexture.bind(this),
 			getActivePlayer: this.getActivePlayer.bind(this),
+            bulletCollision: this.bulletCollision.bind(this),
 		})
 		this.engine.add(shot)
 	}
