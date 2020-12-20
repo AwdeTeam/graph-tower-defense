@@ -293,13 +293,7 @@ export class Game {
 		}
 		else if (type == unit.UnitType.gunTower)
 		{
-			newUnit = new unit.CombatUnit(p.id, pos, type, {
-				loadTexture: this.getUnitTexture.bind(this),
-				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
-				getPlayerByID: this.getPlayerByID.bind(this),
-				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
-				shoot: this.shoot.bind(this),
-			},
+			newUnit = new unit.CombatUnit(p.id, pos, type, callbacks,
 			{
 				findNearestOwned: this.findNearestOwned.bind(this),
 				getOtherPlayer: this.getOtherPlayer.bind(this)
@@ -398,6 +392,7 @@ export class Game {
 
     bulletCollision(pixelPosition: ex.Vector, damage: number) {
         let cell = this.grid.getGridCell(pixelPosition)
+        if (!cell) { console.log("How????"); return }
         console.log(`Fire on cell ${cell.gridPosition} with units ${cell.units.size}`)
         console.log(cell.units)
         cell.units.forEach((unit: unit.Unit) => {
