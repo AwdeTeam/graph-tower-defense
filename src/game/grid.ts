@@ -15,6 +15,7 @@
 import * as ex from "excalibur"
 
 import * as terrains from "./data/terrains.json"
+import {Unit} from "./unit"
 
 export interface GridCallbacks {
     getActiveVisibleCoordinates: (gridPosition: ex.Vector) => boolean
@@ -35,11 +36,13 @@ export class Grid extends ex.Actor {
         terrainGenerator: (square: GridSquare) => TerrainType,
         callbacks: GridCallbacks) {
 		super({ x: 0, y: 0 })
+        console.log("Creating grid")
 		this.size = size
 		this.cellSideLength = cellSideLength
 		this.squares = []
         this.terrainGenerator = terrainGenerator
         this.callbacks = callbacks
+        this.fakeonInitialize()
 	}
 
     getGridCell(pixelPosition: ex.Vector): GridSquare {
@@ -69,6 +72,25 @@ export class Grid extends ex.Actor {
         if (cell) { this.getGridCell(event.pos).mouseUpHandler(event) }
     }
 
+    unitMove(unit: Unit, oldGridPos: ex.Vector, newGridPos: ex.Vector) {
+        let newCell = this.squares[newGridPos.x][newGridPos.y]
+        let oldCell = this.squares[oldGridPos.x][oldGridPos.y]
+        if (!newCell || !oldCell) { return }
+        oldCell.unitLeave(unit)
+        newCell.unitEnter(unit)
+    }
+
+    unitAdd(unit: Unit, gridPos: ex.Vector) {
+        console.log(unit)
+        console.log(gridPos)
+        let cell = this.squares[gridPos.x][gridPos.y]
+        if (!cell) { return }
+        cell.unitEnter(unit)
+        console.log("Unit added!")
+        console.log(cell.gridPosition)
+        console.log(cell.units)
+    }
+
     mouseMoveHandler(event: ex.Input.PointerMoveEvent) {
         let cell = this.getGridCell(event.pos)
         if (!cell) { return }
@@ -79,8 +101,9 @@ export class Grid extends ex.Actor {
         this.pointerOver = cell
     }
 
-	onInitialize() {
+	fakeonInitialize() {
 		// create list of gridsquares
+        console.log("Creating grid squares")
 		for (let x = 0; x < this.size.x; x++)
 		{
 			this.squares[x] = []
@@ -112,18 +135,30 @@ export class GridSquare extends ex.Actor {
     terrain: Terrain
 	callbacks: GridCallbacks
 	borderColor: string
+    units: Set<Unit>
 	
 	constructor(gridPosition: ex.Vector, cellSideLength: number, callbacks: GridCallbacks) {
         let localPos = gridPosition.scale(cellSideLength)
 		super({x: localPos.x, y: localPos.y, width: cellSideLength, height: cellSideLength})
         this.gridPosition = gridPosition
 		this.cellSideLength = cellSideLength
+        this.units = new Set<Unit>()
 		this.callbacks = callbacks
 
 		this.enableCapturePointer = true
 		this.borderColor = "#000"
 		this.enableCapturePointer = true
 	}
+
+    unitLeave(unit: Unit) {
+        console.log(`UNIT LEAVING ${this.gridPosition}`)
+        this.units.delete(unit)
+    }
+
+    unitEnter(unit: Unit) {
+        console.log(`UNIT ENTERING ${this.gridPosition}`)
+        this.units.add(unit)
+    }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
         console.log(this.gridPosition)

@@ -40,6 +40,8 @@ export interface EdgeCallbacks {
 export interface UnitCallbacks {
     loadTexture: (type: UnitType) => ex.Texture
     placeOnGrid: (gridPosition: ex.Vector) => ex.Vector
+    addToGrid: (unit: Unit, gridPosition: ex.Vector) => void
+    moveOnGrid: (unit: Unit, oldPos: ex.Vector, newPos: ex.Vector) => void
 	getPlayerByID: (id: number) => player.Player
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
@@ -84,9 +86,11 @@ export class Unit extends ex.Actor {
         let pixelPosition = callbacks.placeOnGrid(gridPosition)
         super({x: pixelPosition.x, y: pixelPosition.y})
 		this.playerID = playerID
+        this.health = 10
         this.gridPosition = gridPosition
         this.type = type
         this.callbacks = callbacks
+        this.callbacks.addToGrid(this, this.gridPosition)
         this.traits = [] // Oh boy am I not a fan of this solution...
     }
 
@@ -96,6 +100,12 @@ export class Unit extends ex.Actor {
 
     public onInitialize() {
         this.addDrawing(this.callbacks.loadTexture(this.type))
+    }
+
+    public onPostUpdate(engine: ex.Engine, delta: number) {
+        if (this.health <= 0) {
+            this.kill()
+        }
     }
 
     public onPostDraw() {
@@ -166,6 +176,7 @@ export class MobileCombatUnit extends CombatUnit {
 	// returns true if already at target 
 	moveTowardsTarget(targetPos: ex.Vector, delta: number): boolean
 	{
+        let oldPosition = this.gridPosition
 		// can we move?
 		this.movementCooldown -= delta
 		if (this.movementCooldown > 0) { return false }
@@ -201,6 +212,10 @@ export class MobileCombatUnit extends CombatUnit {
 			this.gridPosition.y -= 1
 			this.rotation = 0*Math.PI
 		}
+
+        if (this.gridPosition !== oldPosition) {
+            this.callbacks.moveOnGrid(this, oldPosition, this.gridPosition)
+        }
 
 		//this.movementCooldown = this.speed*this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		//let result = this.callbacks.placeOnGrid(this.gridPosition)

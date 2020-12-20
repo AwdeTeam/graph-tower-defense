@@ -95,8 +95,6 @@ export class Game {
 		this.manager.addResources(this.assets)
 
 		this.loadTextures()
-		this.setupInitialUnits()
-
 
 		this.cachedNearestOwned = []
 		
@@ -136,15 +134,6 @@ export class Game {
     }
 
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
-
-	
-	
-
-
-	// getGridCellPos(globalPosition: ex.Vector): ex.Vector
-	// {
-	// 		
-	// }
 
 	getActivePlayer(): player.Player
 	{
@@ -187,8 +176,6 @@ export class Game {
 				}
 			}
 		}
-
-		
 		
 		// find player
 		let player = null
@@ -286,15 +273,18 @@ export class Game {
 	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
 	{
 		let newUnit = null
+        let callbacks = {
+            loadTexture: this.getUnitTexture.bind(this),
+            placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
+            getPlayerByID: this.getPlayerByID.bind(this),
+            getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
+            shoot: this.shoot.bind(this),
+            addToGrid: this.grid.unitAdd.bind(this.grid),
+            moveOnGrid: this.grid.unitMove.bind(this.grid),
+        }
 		if (type == unit.UnitType.mob)
 		{
-			newUnit = new unit.MobileCombatUnit(p.id, pos, type, {
-				loadTexture: this.getUnitTexture.bind(this),
-				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
-				getPlayerByID: this.getPlayerByID.bind(this),
-				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
-				shoot: this.shoot.bind(this),
-			},
+			newUnit = new unit.MobileCombatUnit(p.id, pos, type, callbacks,
 			{
 				findNearestOwned: this.findNearestOwned.bind(this),
 				getOtherPlayer: this.getOtherPlayer.bind(this)
@@ -302,13 +292,7 @@ export class Game {
 		}
 		else
 		{
-			newUnit = new unit.Unit(p.id, pos, type, {
-				loadTexture: this.getUnitTexture.bind(this),
-				placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
-				getPlayerByID: this.getPlayerByID.bind(this),
-				getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
-				shoot: this.shoot.bind(this),
-			})
+			newUnit = new unit.Unit(p.id, pos, type, callbacks)
 		}
 
 		p.units.push(newUnit)
@@ -397,6 +381,12 @@ export class Game {
 
     bulletCollision(pixelPosition: ex.Vector, damage: number) {
         let cell = this.grid.getGridCell(pixelPosition)
+        console.log(`Fire on cell ${cell.gridPosition} with units ${cell.units.size}`)
+        console.log(cell.units)
+        cell.units.forEach((unit: unit.Unit) => {
+            unit.health -= damage
+            console.log(`Unit hit for ${damage}, now has ${unit.health}`)
+        })
     }
 
 	shoot(originatingUnit: unit.Unit, targetPos: ex.Vector)
