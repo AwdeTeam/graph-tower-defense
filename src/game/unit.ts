@@ -13,6 +13,8 @@
  *    Alex L.
  */
 import * as ex from "excalibur"
+import * as player from "./player"
+import * as unit from "./unit"
 
 export enum UnitType {
     contTower = 0,
@@ -37,8 +39,8 @@ export interface EdgeCallbacks {
 export interface UnitCallbacks {
     loadTexture: (type: UnitType) => ex.Texture,
     placeOnGrid: (gridPosition: ex.Vector) => ex.ActorArgs
+	getPlayerByID: (id: number) => player.Player
 }
-
 
 export class Edge extends ex.Actor {
 	unit1: Unit
@@ -78,14 +80,16 @@ export class Unit extends ex.Actor {
     public type: UnitType
     public health: number
     public gridPosition: ex.Vector
-    protected callbacks: UnitCallbacks
+    callbacks: UnitCallbacks
 	playerID: number // ?
 
     constructor(
+			playerID: number,
             gridPosition: ex.Vector,
             type: UnitType,
             callbacks: UnitCallbacks) {
         super(callbacks.placeOnGrid(gridPosition))
+		this.playerID = playerID
         this.gridPosition = gridPosition
         this.type = type
         this.callbacks = callbacks
@@ -98,6 +102,7 @@ export class Unit extends ex.Actor {
 
 export interface CombatUnitCallbacks {
     findNearestOwned: (gridPosition: ex.Vector, ownerID: number) => Unit
+	getOtherPlayer: (myPlayer: player.Player) => player.Player
 }
 
 export class CombatUnit extends Unit {
@@ -105,30 +110,51 @@ export class CombatUnit extends Unit {
     public range: number
     public attRate: number
     public target: Unit
+	combatUnitCallbacks: CombatUnitCallbacks
+
+	constructor(playerID: number, gridPosition: ex.Vector, type: UnitType, unitCallbacks: UnitCallbacks, callbacks: CombatUnitCallbacks)
+	{
+		super(playerID, gridPosition, type, unitCallbacks)
+		this.combatUnitCallbacks = callbacks
+	}
+
+	acquireTarget(): unit.Unit
+	{
+		let targetUnit = this.combatUnitCallbacks.findNearestOwned(
+			this.gridPosition, 
+			this.combatUnitCallbacks.getOtherPlayer(this.callbacks.getPlayerByID(this.playerID)).id
+		)
+
+		return targetUnit
+	}
 }
 
-export interface MobileUnitCallbacks {
-    getGridCellPos: (globalPosition: ex.Vector) => ex.Vector
-}
+
+// export interface MobileUnitCallbacks {
+//     getGridCellPos: (globalPosition: ex.Vector) => ex.Vector
+// }
 
 export class MobileCombatUnit extends CombatUnit {
     public speed: number
     private static tolerance: 5 // Number of pixels we can be from the center to stop moving
     protected gridPathTarget: ex.Vector
-    protected mobileCallbacks: MobileUnitCallbacks
+    //protected mobileCallbacks: MobileUnitCallbacks
 
     constructor(
+		playerID: number,
         gridPosition: ex.Vector,
         type: UnitType,
         callbacks: UnitCallbacks,
-        mobileCallbacks: MobileUnitCallbacks
+		combatUnitCallbacks: CombatUnitCallbacks
+        //mobileCallbacks: MobileUnitCallbacks
     ) {
-        super(gridPosition, type, callbacks)
-        this.mobileCallbacks = mobileCallbacks
+        super(playerID, gridPosition, type, callbacks, combatUnitCallbacks)
+        ///this.mobileCallbacks = mobileCallbacks
     }
 
     public onPostUpdate() {
-        let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
+        //let targ = this.mobileCallbacks.getGridCellPos(this.gridPosition)
+		let targ = this.acquireTarget().gridPosition
         let path = targ.sub(this.pos)
         if (path.magnitude() > MobileCombatUnit.tolerance) {
             this.vel = path.normalize().scale(this.speed)

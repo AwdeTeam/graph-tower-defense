@@ -47,6 +47,7 @@ export class Player extends ex.Actor {
         }
 		this.visibleCoordinates = [new ex.Vector(0,0)]
         this.panOffset = new ex.Vector(0, 0)
+		this.units = []
     }
 
 	checkForUnitOnSquare(square: ex.Vector): unit.Unit

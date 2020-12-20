@@ -30,7 +30,7 @@ const defaultConfig = {
         grid: {
             width: 16,
             height: 12,
-            squareSize: 50,
+            squareSize: 60,
         },
     },
     settings: {
@@ -67,6 +67,8 @@ export class Game {
             canvasElement: this.canvas,
         })
 		this.activePlayer = new player.Player(0, "user")
+		this.aiPlayer = new player.Player(1, "ai")
+		this.players = []
 		this.players.push(this.activePlayer)
         this.grid = new grid.Grid(
             new ex.Vector(this.config.game.grid.width, this.config.game.grid.height),
@@ -104,8 +106,21 @@ export class Game {
 
 	// getGridCellPos(globalPosition: ex.Vector): ex.Vector
 	// {
-	// 	
+	// 		
 	// }
+
+	getPlayerByID(id: number): player.Player
+	{
+		if (id == 1) { return this.aiPlayer }
+		else { return this.activePlayer }
+	}
+
+	getOtherPlayer(myPlayer: player.Player): player.Player
+	{
+		// yep, this is bad, fix later
+		if (myPlayer.id == 0) { return this.aiPlayer }
+		else { return this.activePlayer }
+	}
 
 	findNearestOwned(gridPosition: ex.Vector, ownerID: number): unit.Unit
 	{
@@ -119,6 +134,7 @@ export class Game {
 			}
 		}
 
+		// TODO: fog of war
 		
 		// ----
 		// bfs
@@ -170,23 +186,29 @@ export class Game {
 		return null
 	}
 
+
+	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
+	{
+		let newUnit = new unit.Unit(p.id, pos, type, {
+			loadTexture: this.getUnitTexture.bind(this),
+			placeOnGrid: this.placeUnitOnGrid.bind(this),
+			getPlayerByID: this.getPlayerByID.bind(this),
+		})
+
+		p.units.push(newUnit)
+		this.engine.add(newUnit)
+		return newUnit
+	}
 	
 
     setupInitialUnits() {
-		let testUnit = new unit.Unit(new ex.Vector(0, 0), unit.UnitType.contTower, {
-			loadTexture: this.getUnitTexture.bind(this),
-			placeOnGrid: this.placeUnitOnGrid.bind(this)
-		})
-		
-		let testUnit2 = new unit.Unit(new ex.Vector(6, 8), unit.UnitType.drilTower, {
-			loadTexture: this.getUnitTexture.bind(this),
-			placeOnGrid: this.placeUnitOnGrid.bind(this)
-		})
+		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower)
+		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
 
-		let edge = new unit.Edge(testUnit, testUnit2, { getGridSize: this.getGridSize.bind(this) })
+		let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
 		
-		this.engine.add(testUnit)
-		this.engine.add(testUnit2)
+		this.engine.add(unit1)
+		this.engine.add(unit2)
 		this.engine.add(edge)
     }
 
