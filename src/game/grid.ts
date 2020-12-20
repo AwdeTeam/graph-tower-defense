@@ -157,7 +157,7 @@ export class GridSquare extends ex.Actor {
             ctx.fillRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
         }
 		ctx.strokeStyle = this.borderColor
-        ctx.strokeRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
+        ctx.strokeRect(localPos.x, localPos.y, this.cellSideLength-1, this.cellSideLength-1)
 	}
 }
 
