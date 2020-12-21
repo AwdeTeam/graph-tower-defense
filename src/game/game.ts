@@ -363,9 +363,9 @@ export class Game {
 		if (p.id == 0 && !force) 
 		{
 			let cost = 0
-			if (type == unit.UnitType.gunTower) { cost = 100 }
-			else if (type == unit.UnitType.contTower) { cost = 500 }
-			else if (type == unit.UnitType.drilTower) { cost = 100 }
+			if (type == unit.UnitType.gunTower) { cost = 50 }
+			else if (type == unit.UnitType.contTower) { cost = 300 }
+			else if (type == unit.UnitType.drilTower) { cost = 50 }
 			if (!p.spendResources(cost)) 
 			{ 
 				newUnit.destroy()
@@ -479,7 +479,7 @@ export class Game {
 	spawnEnemy() {
 		let x = utils.randomNumber(0,10)
 		let y = utils.randomNumber(0,10)
-		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000})
+		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 5000})
 		this.addTimer(timer)
 
 		let enemey = this.createUnit(this.aiPlayer, new ex.Vector(x, y), unit.UnitType.mob)

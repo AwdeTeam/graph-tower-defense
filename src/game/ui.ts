@@ -14,6 +14,7 @@ export class towerSelection extends ex.ScreenElement
 	right: number
 	callbacks: UICallbacks
 	lbl: ex.Label
+	maximumScore: number
 
 	icons: towerIcon[]
 	selectedIcon: towerIcon
@@ -27,21 +28,24 @@ export class towerSelection extends ex.ScreenElement
 		this.callbacks = callbacks
 		this.height = 100
 
+		this.maximumScore = 0
+
 		engine.add(this)
 		
-		let gun = new towerIcon(engine, 20, bottom-80, "gun", unit.UnitType.gunTower, callbacks)
+		let gun = new towerIcon(engine, 20, bottom-80, "gun (50)", unit.UnitType.gunTower, callbacks)
 		engine.add(gun)
 
-		let drill = new towerIcon(engine, 100, bottom-80, "driller", unit.UnitType.drilTower, callbacks)
+		let drill = new towerIcon(engine, 120, bottom-80, "driller (50)", unit.UnitType.drilTower, callbacks)
 		engine.add(drill)
 		
-		let control = new towerIcon(engine, 180, bottom-80, "control", unit.UnitType.contTower, callbacks)
+		let control = new towerIcon(engine, 220, bottom-80, "control (300)", unit.UnitType.contTower, callbacks)
 		engine.add(control)
 
 		this.icons = []
         this.icons.push(gun)
 		this.icons.push(drill)
 		this.icons.push(control)
+		this.icons.push(gun)
 	}
 
 	
@@ -51,8 +55,9 @@ export class towerSelection extends ex.ScreenElement
         ctx.fillStyle = "#FEF"
         ctx.font = "32px Arial"
         let collection = this.callbacks.getPlayerResources()
-        ctx.fillText(`Resources: ${collection.resources} Points: ${collection.points}`,
-            this.right-400, this.bottom-15)
+		if (this.maximumScore < collection.points) { this.maximumScore = collection.points }
+        ctx.fillText(`Resources: ${collection.resources} Points: ${collection.points} Max: ${this.maximumScore}`,
+            this.right-500, this.bottom-15)
 	}
 	
 	onInitialize()
