@@ -172,9 +172,22 @@ export class Player extends ex.Actor {
 		}
 	}
 
-	spendResources(resourceCount: number)
+	spendResources(resourceCount: number): boolean
 	{
-		
+		if (this.getTotalResources() < resourceCount) { return false }
+
+		let roundRobin = resourceCount
+		let i = 0
+		while (roundRobin > 0)
+		{
+			this.units[i].resources--
+			roundRobin--
+			i++
+			if (i >= this.units.length) { i=0 }
+		}
+
+		this.redistributeResources()
+		return true
 	}
 
 	addUnit(unit1: unit.Unit) { this.units.push(unit1) }
