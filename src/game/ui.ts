@@ -76,9 +76,17 @@ export class towerSelection extends ex.ScreenElement
 		{
 			let icon = this.icons[i]
 			if (icon.isPosIn(event.pos)) {
-				this.deselectAllIcons()
-				icon.selected = true
-				this.selectedIcon = icon
+				if (icon.selected)
+				{
+					this.deselectAllIcons()
+					this.selectedIcon = null
+				}
+				else
+				{
+					this.deselectAllIcons()
+					icon.selected = true
+					this.selectedIcon = icon
+				}
 			}
 		}
     }
