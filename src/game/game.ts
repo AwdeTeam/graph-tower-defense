@@ -200,9 +200,12 @@ export class Game {
 			let entry = this.cachedNearestOwned[i]
 			if (entry.gridPosition == gridPosition && entry.ownerID == ownerID)
 			{
-				if (entry.ttl > 0) 
+                if (entry.out && entry.out.health <= 0) {
+					this.cachedNearestOwned.splice(i, 1)
+                }
+				else if (entry.ttl > 0) 
 				{ 
-					entry.ttl--;
+					entry.ttl--
 					return entry.out
 				}
 				else
@@ -524,6 +527,7 @@ export class Game {
 
 	shoot(originatingUnit: unit.Unit, targetPos: ex.Vector)
 	{
+        if (originatingUnit.health <= 0) { return }
 		let shotType = unit.ShotType.towerShot
 		if (originatingUnit.type == unit.UnitType.mob)
 		{

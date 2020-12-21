@@ -93,6 +93,14 @@ export class Player extends ex.Actor {
             panMove.x -= 1
         }
         this.panOffset = this.panOffset.add(panMove.scale(delta*panSpeed))
+        let deadUnitIndexes: number[] = []
+        this.units.forEach((unit, index) => {
+            if (unit.health <= 0) {
+                console.log("Dropping dead unit")
+                console.log(unit)
+                this.units.splice(index, 1)
+            }
+        })
     }
 
 	addUnit(unit: unit.Unit) { this.units.push(unit) }
@@ -144,11 +152,4 @@ export class Player extends ex.Actor {
 		}
 		return handled
 	}
-
-	// mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
-	// 	this.ts.mouseEnterHandler(event)
-	// }
-	// 
-	// mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
-	// }
 }

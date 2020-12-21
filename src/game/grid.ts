@@ -189,6 +189,19 @@ export class GridSquare extends ex.Actor {
 		this.hasPoints = false
 	}
 
+    public onPreUpdate(engine: ex.Engine, delta: number) {
+        let deadUnits: Unit[] = []
+        let self = this
+        this.units.forEach((unit) => {
+            if (unit.health <= 0) {
+                deadUnits.push(unit)
+            }
+        })
+        deadUnits.forEach((dead) => {
+            self.units.delete(dead)
+        })
+    }
+
     unitLeave(unit: Unit) {
         this.units.delete(unit)
     }

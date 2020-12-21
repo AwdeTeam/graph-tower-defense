@@ -64,6 +64,9 @@ export class Edge extends ex.Actor {
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
+        if (this.unit1.health <= 0 || this.unit2.health <= 0) {
+            return
+        }
 		ctx.beginPath();
 		let point1 = this.unit1.getPixelPosition()
 		let point2 = this.unit2.getPixelPosition()
@@ -182,14 +185,24 @@ export class Unit extends ex.Actor {
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (this.health <= 0) {
             this.kill()
+            engine.remove(this)
+            this.visible = false
+            this.draw = () => {}
         }
     }
 
-    public onPostDraw() {
+    public draw(ctx: CanvasRenderingContext2D, delta: number) {
+        if (this.health > 0) {
+            super.draw(ctx, delta)
+        }
+    }
+
+    public onPostDraw(ctx: CanvasRenderingContext2D, delta: number) {
         this.pos = this.getPixelPosition()
+        ctx.font = "30px Arial"
+        ctx.fillStyle = "#F00"
+        ctx.fillText(`${this.health}`, 0, 0)
 		this.updateLbls()
-        this.isOffScreen = false
-        this.visible = true
     }
 }
 
@@ -243,6 +256,9 @@ export class CombatUnit extends Unit {
 			this.gridPosition, 
 			this.combatUnitCallbacks.getOtherPlayer(this.callbacks.getPlayerByID(this.playerID)).id
 		)
+        if (targetUnit.health <= 0) {
+            return null
+        }
 
 		return targetUnit
 	}
@@ -335,9 +351,7 @@ export class MobileCombatUnit extends CombatUnit {
 			this.rotation = 0*Math.PI
 		}
 
-        if (this.gridPosition !== oldPosition) {
-            this.callbacks.moveOnGrid(this, oldPosition, this.gridPosition)
-        }
+        this.callbacks.moveOnGrid(this, oldPosition, this.gridPosition)
 
 		//this.movementCooldown = this.speed*this.callbacks.getGridSquareFromPosition(this.gridPosition).terrain.movementCost
 		//let result = this.callbacks.placeOnGrid(this.gridPosition)
