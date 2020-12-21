@@ -55,6 +55,15 @@ export class Grid extends ex.Actor {
 			}
 		}
 	}
+
+	getSelected(): GridSquare
+	{
+		for (let i = 0; i < this.squares.length; i++) {
+			for (let j = 0; j < this.squares[i].length; j++) {
+				if (this.squares[i][j].selected) { return this.squares[i][j] }
+			}
+		}
+	}
 	
     getGridCell(pixelPosition: ex.Vector): GridSquare {
 		let localPos = pixelPosition.sub(this.callbacks.getOffset())

@@ -38,6 +38,8 @@ export class Player extends ex.Actor {
 	visibleCoordinates: ex.Vector[]
 	units: unit.Unit[]
 
+	ghostUnit: unit.Unit
+
 	ts: ui.towerSelection
 	windowHeight: number
 	
@@ -52,6 +54,8 @@ export class Player extends ex.Actor {
 		this.visibleCoordinates = [new ex.Vector(0,0)]
         this.panOffset = new ex.Vector(0, 0)
 		this.units = []
+
+		//this.ghostUnit = 
     }
 
 

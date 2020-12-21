@@ -104,6 +104,7 @@ export class Game {
         this.mouseDownHandler = this.mouseDownHandler.bind(this)
         this.mouseUpHandler = this.mouseUpHandler.bind(this)
         this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
+		this.keyReleaseHandler = this.keyReleaseHandler.bind(this)
         this.setupHandlers()
 
 		this.activePlayer.initUI(this.engine,  this.config.display.height,this.config.display.width,
@@ -116,13 +117,23 @@ export class Game {
         this.engine.input.pointers.primary.on('down', this.mouseDownHandler)
         this.engine.input.pointers.primary.on('up', this.mouseUpHandler)
         this.engine.input.pointers.primary.on('move', this.mouseMoveHandler)
+		this.engine.input.keyboard.on("release", this.keyReleaseHandler)
     }
+
+	keyReleaseHandler(event: ex.Input.KeyEvent)
+	{
+		if (event.key == ex.Input.Keys.Space)
+		{
+			this.createGhostUnit(this.activePlayer.ts.selectedIcon.type)
+		}
+	}
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
 		let handled = this.activePlayer.mouseDownHandler(event)
 		if (!handled)
 		{
-			this.grid.mouseDownHandler(event)
+        this.grid.mouseDownHandler(event)
+			
 		}
     }
 
@@ -130,6 +141,7 @@ export class Game {
         let handled = this.activePlayer.mouseUpHandler(event)
 		if (!handled)
 		{
+			console.log("SENDING ON TO GRID")
 			this.grid.mouseUpHandler(event)
 		}
     }
@@ -325,6 +337,37 @@ export class Game {
 		p.units.push(newUnit)
 		this.engine.add(newUnit)
 		return newUnit
+	}
+
+	createGhostUnit(type: unit.UnitType)
+	{
+		let ghostUnit = null
+
+        let callbacks = {
+            loadTexture: this.getUnitTexture.bind(this),
+            placeOnGrid: this.grid.placeOnGrid.bind(this.grid),
+            getPlayerByID: this.getPlayerByID.bind(this),
+            getGridSquareFromPosition: this.getGridSquareFromPosition.bind(this),
+            shoot: this.shoot.bind(this),
+            addToGrid: this.grid.unitAdd.bind(this.grid),
+            moveOnGrid: this.grid.unitMove.bind(this.grid),
+        }
+		
+		if (type == unit.UnitType.gunTower)
+		{
+			ghostUnit = new unit.CombatUnit(-1, this.grid.getSelected().gridPosition, type, callbacks,
+			{
+				findNearestOwned: this.findNearestOwned.bind(this),
+				getOtherPlayer: this.getOtherPlayer.bind(this)
+			})
+			
+		}
+		else
+		{
+			ghostUnit = new unit.Unit(-1, this.grid.getSelected().gridPosition, type, callbacks)
+		}
+		
+		this.engine.add(ghostUnit)
 	}
 	
 

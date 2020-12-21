@@ -77,6 +77,7 @@ export class Unit extends ex.Actor {
     public gridPosition: ex.Vector
     callbacks: UnitCallbacks
 	playerID: number // ?
+	ghost: boolean
 
     constructor(
 			playerID: number,
@@ -92,6 +93,12 @@ export class Unit extends ex.Actor {
         this.callbacks = callbacks
         this.callbacks.addToGrid(this, this.gridPosition)
         this.traits = [] // Oh boy am I not a fan of this solution...
+
+		if (this.playerID == -1) {
+			this.ghost = true
+			this.opacity = .5
+		}
+		else { this.ghost = false }
     }
 
     public getPixelPosition(): ex.Vector {
@@ -147,6 +154,7 @@ export class CombatUnit extends Unit {
 	}
 	
     public onPostUpdate(engine: ex.Engine, delta: number) {
+		if (this.ghost) { return }
 		let target = this.acquireTarget()
 		if (target != null) 
 		{ 
