@@ -29,10 +29,13 @@ export class towerSelection extends ex.ScreenElement
 
 		engine.add(this)
 		
-		let drill = new towerIcon(engine, 20, bottom-80, "driller", unit.UnitType.drilTower, callbacks)
+		let gun = new towerIcon(engine, 20, bottom-80, "gun", unit.UnitType.gunTower, callbacks)
+		engine.add(gun)
+
+		let drill = new towerIcon(engine, 100, bottom-80, "driller", unit.UnitType.drilTower, callbacks)
 		engine.add(drill)
 		
-		let control = new towerIcon(engine, 100, bottom-80, "control", unit.UnitType.contTower, callbacks)
+		let control = new towerIcon(engine, 180, bottom-80, "control", unit.UnitType.contTower, callbacks)
 		engine.add(control)
 
 		this.icons = []
@@ -99,14 +102,6 @@ export class towerSelection extends ex.ScreenElement
 			}
 		}
     }
-
-	// mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
-	// 	this.drill.mouseEnterHandler(event)
-	// 	this.control.mouseEnterHandler(event)
-	// }
-	// 
-	// mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
-	// }
 }
 
 export class towerIcon extends ex.ScreenElement 
