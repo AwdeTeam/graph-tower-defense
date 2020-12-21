@@ -46,6 +46,7 @@ export class Grid extends ex.Actor {
 	}
 
     getGridCell(pixelPosition: ex.Vector): GridSquare {
+		// TODO: pan offset, pass in from game
         let localPos = pixelPosition.scale(1/this.cellSideLength).add(this.callbacks.getOffset())
         let [x, y] = [Math.floor(localPos.x), Math.floor(localPos.y)]
         if (0 < x && x < this.squares.length && 0 < y && y < this.squares[x].length) {

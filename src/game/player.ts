@@ -39,7 +39,8 @@ export class Player extends ex.Actor {
 	units: unit.Unit[]
 
 	ts: ui.towerSelection
-
+	windowHeight: number
+	
     constructor (id: number, name: string) {
         super()
         this.id = id
@@ -58,6 +59,7 @@ export class Player extends ex.Actor {
 	{
 		this.ts = new ui.towerSelection(engine, height, width, callbacks)
 		//engine.add(ts)
+		this.windowHeight = height
 	}
 	
 	
@@ -93,18 +95,47 @@ export class Player extends ex.Actor {
 	addUnit(unit: unit.Unit) { this.units.push(unit) }
 	
 	
-    mouseDownHandler(event: ex.Input.PointerDownEvent) {
-        //this.hover = true
-    }
+    // mouseDownHandler(event: ex.Input.PointerDownEvent) {
+    //     //this.hover = true
+    // }
+
+	isCursorOverTS(pos: ex.Vector): boolean
+	{
+		return (pos.y > this.windowHeight - this.ts.height)
+	}
 
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
+		let handled = false
+		if (this.ts != undefined)
+		{
+			if (this.isCursorOverTS(event.pos))
+			{
+				this.ts.mouseUpHandler(event)
+				handled = true
+			}
+		}
+		return handled
 
     }
 
-	mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
-		this.ts.mouseEnterHandler(event)
+	mouseMoveHandler(event: ex.Input.PointerMoveEvent): boolean
+	{
+		let handled = false
+		if (this.ts != undefined)
+		{
+			if (this.isCursorOverTS(event.pos))
+			{
+				this.ts.mouseMoveHandler(event)
+				handled = true
+			}
+		}
+		return handled
 	}
-	
-	mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
-	}
+
+	// mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
+	// 	this.ts.mouseEnterHandler(event)
+	// }
+	// 
+	// mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
+	// }
 }
