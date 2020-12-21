@@ -45,9 +45,10 @@ export class towerSelection extends ex.ScreenElement
 		ctx.fillStyle = 'rgba(150, 150, 150, .5)'
 		ctx.fillRect(0, this.bottom-this.height, this.right, this.height)
         ctx.fillStyle = "#FEF"
-        ctx.font = "40px Arial"
-        ctx.fillText(`Resources: ${this.callbacks.getPlayerResources().resource}`,
-            this.right-350, this.bottom-15)
+        ctx.font = "32px Arial"
+        let collection = this.callbacks.getPlayerResources()
+        ctx.fillText(`Resources: ${collection.resources} Points: ${collection.points}`,
+            this.right-400, this.bottom-15)
 	}
 	
 	onInitialize()

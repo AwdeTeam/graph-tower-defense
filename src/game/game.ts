@@ -118,7 +118,7 @@ export class Game {
 		{
 			getUnitTexture: this.getUnitTexture.bind(this),
 			createGhost: this.createGhostUnit.bind(this),
-            getPlayerResources: (() => { return this.activePlayer.resources }).bind(this)
+            getPlayerResources: this.activePlayer.getResourceCollection.bind(this.activePlayer)
 		})
     }
 

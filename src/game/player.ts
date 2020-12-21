@@ -17,7 +17,8 @@ import * as unit from "./unit"
 import * as ui from "./ui"
 
 export interface ResourceCollection {
-    resource: number
+    resources: number
+    points: number
 }
 
 interface MockTower {
@@ -32,7 +33,6 @@ enum MouseState{
 export class Player extends ex.Actor {
     id: number
     name: string
-    resources: ResourceCollection
     ownedTowers: MockTower[]
     panOffset: ex.Vector
 	visibleCoordinates: ex.Vector[]
@@ -48,9 +48,6 @@ export class Player extends ex.Actor {
         this.id = id
         this.name = name
         this.ownedTowers = []
-        this.resources = {
-            resource: 0,
-        }
 		this.visibleCoordinates = [new ex.Vector(0,0)]
         this.panOffset = new ex.Vector(0, 0)
 		this.units = []
@@ -142,6 +139,13 @@ export class Player extends ex.Actor {
 		for (let i = 0; i < this.units.length; i++) { totalPoints += this.units[i].points }
 		return totalPoints
 	}
+
+    getResourceCollection(): ResourceCollection {
+        return {
+            resources: this.getTotalResources(),
+            points: this.getTotalPoints()
+        }
+    }
 
 	redistributePoints()
 	{
