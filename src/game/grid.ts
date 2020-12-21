@@ -37,7 +37,6 @@ export class Grid extends ex.Actor {
         terrainGenerator: (square: GridSquare) => TerrainType,
         callbacks: GridCallbacks) {
 		super({ x: 0, y: 0 })
-        console.log("Creating grid")
 		this.size = size
 		this.cellSideLength = cellSideLength
 		this.squares = []
@@ -108,14 +107,9 @@ export class Grid extends ex.Actor {
     }
 
     unitAdd(unit: Unit, gridPos: ex.Vector) {
-        console.log(unit)
-        console.log(gridPos)
         let cell = this.squares[gridPos.x][gridPos.y]
         if (!cell) { return }
         cell.unitEnter(unit)
-        console.log("Unit added!")
-        console.log(cell.gridPosition)
-        console.log(cell.units)
     }
 
     mouseMoveHandler(event: ex.Input.PointerMoveEvent) {
@@ -130,7 +124,6 @@ export class Grid extends ex.Actor {
 
 	fakeonInitialize() {
 		// create list of gridsquares
-        console.log("Creating grid squares")
 		for (let x = 0; x < this.size.x; x++)
 		{
 			this.squares[x] = []
@@ -180,17 +173,14 @@ export class GridSquare extends ex.Actor {
 	}
 
     unitLeave(unit: Unit) {
-        console.log(`UNIT LEAVING ${this.gridPosition}`)
         this.units.delete(unit)
     }
 
     unitEnter(unit: Unit) {
-        console.log(`UNIT ENTERING ${this.gridPosition}`)
         this.units.add(unit)
     }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
-        console.log(this.gridPosition)
         //this.borderColor = "#0FF"
 		this.selected = true
     }
