@@ -80,16 +80,16 @@ export class Player extends ex.Actor {
     public onPreUpdate(engine: ex.Engine, delta: number) {
         const panSpeed = 1 //TODO pull this into a config setting
         const panMove = new ex.Vector(0, 0)
-        if (engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+        if (engine.input.keyboard.isHeld(ex.Input.Keys.Up) || engine.input.keyboard.isHeld(ex.Input.Keys.W)) {
             panMove.y += 1
         }
-        if (engine.input.keyboard.isHeld(ex.Input.Keys.Down)) {
+        if (engine.input.keyboard.isHeld(ex.Input.Keys.Down) || engine.input.keyboard.isHeld(ex.Input.Keys.S)) {
             panMove.y -= 1
         }
-        if (engine.input.keyboard.isHeld(ex.Input.Keys.Left)) {
+        if (engine.input.keyboard.isHeld(ex.Input.Keys.Left) || engine.input.keyboard.isHeld(ex.Input.Keys.A)) {
             panMove.x += 1
         }
-        if (engine.input.keyboard.isHeld(ex.Input.Keys.Right)) {
+        if (engine.input.keyboard.isHeld(ex.Input.Keys.Right) || engine.input.keyboard.isHeld(ex.Input.Keys.D)) {
             panMove.x -= 1
         }
         this.panOffset = this.panOffset.add(panMove.scale(delta*panSpeed))

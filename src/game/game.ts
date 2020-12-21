@@ -304,6 +304,11 @@ export class Game {
 	}
 
 
+	getEngine(): ex.Engine
+	{
+		return this.engine
+	}
+
 	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
 	{
 		let newUnit = null
@@ -315,7 +320,8 @@ export class Game {
             shoot: this.shoot.bind(this),
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
-			addEdge: this.addEdge.bind(this)
+			addEdge: this.addEdge.bind(this),
+			getEngine: this.getEngine.bind(this)
         }
 		if (type == unit.UnitType.mob)
 		{
@@ -377,7 +383,8 @@ export class Game {
             shoot: this.shoot.bind(this),
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
-			addEdge: this.addEdge.bind(this)
+			addEdge: this.addEdge.bind(this),
+			getEngine: this.getEngine.bind(this)
         }
 		
 		if (type == unit.UnitType.gunTower)

@@ -46,6 +46,7 @@ export interface UnitCallbacks {
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
 	addEdge: (unit1: unit.Unit, unit2: unit.Unit) => void
+	getEngine: () => ex.Engine
 }
 
 export class Edge extends ex.Actor {
@@ -81,9 +82,17 @@ export class Unit extends ex.Actor {
     public health: number
     public gridPosition: ex.Vector
     callbacks: UnitCallbacks
-	playerID: number // ?
+	playerID: number 
 	ghost: boolean
 	maxLinkDist: number
+	
+	suppressCounts: boolean /// ?
+
+	points: number
+	resources: number
+	lblPoints: ex.Label
+	lblResources: ex.Label
+	
 
     constructor(
 			playerID: number,
@@ -99,6 +108,9 @@ export class Unit extends ex.Actor {
         this.callbacks = callbacks
         this.callbacks.addToGrid(this, this.gridPosition)
         this.traits = [] // Oh boy am I not a fan of this solution...
+
+		this.resources = 0
+		this.points = 0
 
 		if (this.playerID == -1) {
 			this.ghost = true
@@ -143,7 +155,29 @@ export class Unit extends ex.Actor {
 
     public onInitialize() {
         this.addDrawing(this.callbacks.loadTexture(this.type))
+
+
+		let lblR = new ex.Label({x: 0, y: 0})
+		lblR.color = ex.Color.Orange
+		this.lblResources = lblR
+
+		let lblP = new ex.Label({x: 0, y: 0})
+		lblP.color = ex.Color.Yellow
+		this.lblPoints = lblP
+		
+		this.callbacks.getEngine().add(lblR)
+		this.callbacks.getEngine().add(lblP)
     }
+
+	public updateLbls()
+	{
+		if (this.ghost || this.type == UnitType.mob) { return }
+		this.lblResources.pos = this.pos.add(new ex.Vector(15, 30))
+		this.lblPoints.pos = this.pos.add(new ex.Vector(-30, 30))
+
+		this.lblResources.text = this.resources.toString()
+		this.lblPoints.text = this.points.toString()
+	}
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (this.health <= 0) {
@@ -153,6 +187,7 @@ export class Unit extends ex.Actor {
 
     public onPostDraw() {
         this.pos = this.getPixelPosition()
+		this.updateLbls()
         this.isOffScreen = false
         this.visible = true
     }
