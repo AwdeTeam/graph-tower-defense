@@ -95,6 +95,7 @@ export class Game {
 		this.grid.enableCapturePointer = true
 		this.engine.add(this.grid)
         this.engine.add(this.activePlayer)
+		this.engine.add(this.aiPlayer)
 
 		this.assets = new ex.Loader()
 
@@ -170,6 +171,8 @@ export class Game {
     }
 
 	addTimer(timer: ex.Timer) { this.engine.add(timer) }
+
+	removeLabel(lbl: ex.Label) { this.engine.remove(lbl) }
 
 	getActivePlayer(): player.Player
 	{
@@ -324,7 +327,9 @@ export class Game {
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
 			addEdge: this.addEdge.bind(this),
-			getEngine: this.getEngine.bind(this)
+			getEngine: this.getEngine.bind(this),
+			removeAllEdgesFromUnit: this.removeAllEdgesFromUnit.bind(this),
+			removeLabel: this.removeLabel.bind(this)
         }
 		if (type == unit.UnitType.mob)
 		{
@@ -391,9 +396,11 @@ export class Game {
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
 			addEdge: this.addEdge.bind(this),
-			getEngine: this.getEngine.bind(this)
-        }
+			getEngine: this.getEngine.bind(this),
+			removeAllEdgesFromUnit: this.removeAllEdgesFromUnit.bind(this),
+			removeLabel: this.removeLabel.bind(this)
 		
+        }
 		if (type == unit.UnitType.gunTower)
 		{
 			ghostUnit = new unit.CombatUnit(-1, this.grid.getSelected().gridPosition, type, callbacks,
@@ -453,6 +460,8 @@ export class Game {
 	spawnEnemy() {
 		let x = utils.randomNumber(0,10)
 		let y = utils.randomNumber(0,10)
+		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000})
+		this.addTimer(timer)
 
 		let enemey = this.createUnit(this.aiPlayer, new ex.Vector(x, y), unit.UnitType.mob)
 	}

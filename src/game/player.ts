@@ -77,7 +77,7 @@ export class Player extends ex.Actor {
 		return null
 	}
 
-    public onPreUpdate(engine: ex.Engine, delta: number) {
+    onPreUpdate(engine: ex.Engine, delta: number) {
         const panSpeed = 1 //TODO pull this into a config setting
         const panMove = new ex.Vector(0, 0)
         if (engine.input.keyboard.isHeld(ex.Input.Keys.Up) || engine.input.keyboard.isHeld(ex.Input.Keys.W)) {
@@ -93,17 +93,20 @@ export class Player extends ex.Actor {
             panMove.x -= 1
         }
         this.panOffset = this.panOffset.add(panMove.scale(delta*panSpeed))
-        let deadUnitIndexes: number[] = []
-        this.units.forEach((unit, index) => {
-            if (unit.health <= 0) {
-                console.log("Dropping dead unit")
-                console.log(unit)
-                this.units.splice(index, 1)
-            }
-        })
+
+		for (let i = this.units.length - 1; i >= 0; i--)
+		{
+			//let unit = this.units[i]
+			if (this.units[i].dead)
+			{
+				console.log("Removing unit " + i.toString() + " for player " + this.id.toString())
+				engine.remove(this.units[i])
+				this.units.splice(i, 1)
+			}
+		}
     }
 
-	addUnit(unit: unit.Unit) { this.units.push(unit) }
+	addUnit(unit1: unit.Unit) { this.units.push(unit1) }
 	
 	
 
