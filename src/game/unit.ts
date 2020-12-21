@@ -52,12 +52,14 @@ export class Edge extends ex.Actor {
 	unit1: Unit
 	unit2: Unit
 	callbacks: EdgeCallbacks
+	ghost: boolean
 	
-	constructor(unit1: Unit, unit2: Unit, callbacks: EdgeCallbacks) {
+	constructor(unit1: Unit, unit2: Unit, ghost: boolean, callbacks: EdgeCallbacks) {
 		super()
 		this.unit1 = unit1
 		this.unit2 = unit2
 		this.callbacks = callbacks
+		this.ghost = ghost
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -67,6 +69,8 @@ export class Edge extends ex.Actor {
 		ctx.moveTo(point1.x, point1.y)
 		ctx.lineTo(point2.x, point2.y)
 		ctx.lineWidth = 5
+		if (this.ghost) { ctx.strokeStyle = "rgba(0, 0, 0, .5)" }
+		else {	ctx.strokeStyle = "rgba(0, 0, 0, 1.0)" }
 		ctx.stroke()
 	}
 }
@@ -122,13 +126,10 @@ export class Unit extends ex.Actor {
 		for (let i = 0; i < player.units.length; i++)
 		{
 			let u = player.units[i]
-			console.log("Checking unit " + i.toString())
 			if (u == this) { continue }
 			let diff = this.pos.sub(u.pos)
-			console.log(diff.size)
 			if (diff.size < this.maxLinkDist + u.maxLinkDist)
 			{
-				console.log("It's good!")
 				// make edge
 				this.callbacks.addEdge(this, u)
 			}

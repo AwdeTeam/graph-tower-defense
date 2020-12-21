@@ -401,7 +401,9 @@ export class Game {
 
 	addEdge(unit1: unit.Unit, unit2: unit.Unit)
 	{
-		let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
+		let ghost = false
+		if (unit1.ghost || unit2.ghost) { ghost = true }
+		let edge = new unit.Edge(unit1, unit2, ghost, { getGridSize: this.getGridSize.bind(this) })
 		this.engine.add(edge)
 		this.edges.push(edge)
 	}
