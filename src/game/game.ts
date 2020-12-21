@@ -357,6 +357,16 @@ export class Game {
 			newUnit = new unit.Unit(p.id, pos, type, callbacks)
 		}
 
+		// check cost
+		if (p.id == 0)
+		{
+			let cost = 0
+			if (type == unit.UnitType.gunTower) { cost = 100 }
+			else if (type == unit.UnitType.contTower) { cost = 500 }
+			else if (type == unit.UnitType.drilTower) { cost = 100 }
+			if (!p.spendResources(cost)) { return }
+		}
+
 		p.units.push(newUnit)
 		this.engine.add(newUnit)
 		return newUnit
@@ -476,7 +486,7 @@ export class Game {
 		this.textures[unit.UnitType.storTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.watcTower] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.drilTower] = loadTexture("tower_basic.png", this.assets)
-		this.textures[unit.UnitType.gunTower] = loadTexture("tower_basic.png", this.assets)
+		this.textures[unit.UnitType.gunTower] = loadTexture("tower_watch.png", this.assets)
 		this.textures[unit.UnitType.basicUnit] = loadTexture("tower_basic.png", this.assets)
 		this.textures[unit.UnitType.mob] = loadTexture("Rat.png", this.assets)
 

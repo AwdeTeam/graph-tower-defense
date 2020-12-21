@@ -174,6 +174,7 @@ export class Player extends ex.Actor {
 
 	spendResources(resourceCount: number): boolean
 	{
+		//console.log("Trying to spend " + 
 		if (this.getTotalResources() < resourceCount) { return false }
 
 		let roundRobin = resourceCount
