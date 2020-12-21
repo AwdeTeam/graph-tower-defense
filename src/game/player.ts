@@ -104,7 +104,65 @@ export class Player extends ex.Actor {
 				this.units.splice(i, 1)
 			}
 		}
+
+		this.redistributePoints()
+		this.redistributeResources()
     }
+
+	redistributeResources()
+	{
+		let totalResources = 0
+		// get a total sum of all resources (TODO: make this a function)
+		for (let i = 0; i < this.units.length; i++) { totalResources += this.units[i].resources }
+
+		let resourcesPer = Math.floor(totalResources / this.units.length)
+		let overflow = Math.floor(totalResources - (resourcesPer * this.units.length))
+
+		// redistribute
+		for (let i = 0; i < this.units.length; i++) { this.units[i].resources = resourcesPer }
+		let i = 0
+		while (overflow > 0)
+		{
+			this.units[i].resources++
+			overflow--
+			i++
+			if (i >= this.units.length) { i=0 }
+		}
+	}
+
+	redistributePoints()
+	{
+		let totalPoints = 0
+		let controlTowers = []
+		for (let i = 0; i < this.units.length; i++) 
+		{ 
+			totalPoints += this.units[i].points 
+			if (this.units[i].type == unit.UnitType.contTower)
+			{
+				controlTowers.push(this.units[i])
+			}
+			this.units[i].points = 0
+		}
+
+		let pointsPer = Math.floor(totalPoints / controlTowers.length)
+		let overflow = Math.floor(totalPoints - (pointsPer * controlTowers.length))
+
+		// redistribute
+		for (let i = 0; i < controlTowers.length; i++) { controlTowers[i].points = pointsPer }
+		let i = 0
+		while (overflow > 0)
+		{
+			controlTowers[i].points++
+			overflow--
+			i++
+			if (i >= controlTowers.length) { i=0 }
+		}
+	}
+
+	spendResources(resourceCount: number)
+	{
+		
+	}
 
 	addUnit(unit1: unit.Unit) { this.units.push(unit1) }
 	
