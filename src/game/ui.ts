@@ -1,9 +1,11 @@
 import * as ex from "excalibur"
 import * as unit from "./unit"
+import { ResourceCollection } from "./player"
 
 export interface UICallbacks {
 	getUnitTexture: (type: unit.UnitType) => ex.Texture
 	createGhost: () => void
+    getPlayerResources: () => ResourceCollection
 }
 
 export class towerSelection extends ex.ScreenElement
@@ -42,6 +44,10 @@ export class towerSelection extends ex.ScreenElement
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
 		ctx.fillStyle = 'rgba(150, 150, 150, .5)'
 		ctx.fillRect(0, this.bottom-this.height, this.right, this.height)
+        ctx.fillStyle = "#FEF"
+        ctx.font = "40px Arial"
+        ctx.fillText(`Resources: ${this.callbacks.getPlayerResources().resource}`,
+            this.right-350, this.bottom-15)
 	}
 	
 	onInitialize()

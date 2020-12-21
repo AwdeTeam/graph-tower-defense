@@ -16,8 +16,8 @@ import * as ex from "excalibur"
 import * as unit from "./unit"
 import * as ui from "./ui"
 
-interface ResourceCollection {
-    mana: number
+export interface ResourceCollection {
+    resource: number
 }
 
 interface MockTower {
@@ -49,7 +49,7 @@ export class Player extends ex.Actor {
         this.name = name
         this.ownedTowers = []
         this.resources = {
-            mana: 0,
+            resource: 0,
         }
 		this.visibleCoordinates = [new ex.Vector(0,0)]
         this.panOffset = new ex.Vector(0, 0)
