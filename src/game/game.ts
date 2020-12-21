@@ -143,7 +143,6 @@ export class Game {
         let handled = this.activePlayer.mouseUpHandler(event)
 		if (!handled)
 		{
-			console.log("SENDING ON TO GRID")
 			this.grid.mouseUpHandler(event)
 		}
     }
@@ -157,7 +156,6 @@ export class Game {
     }
 
     start() {
-        console.log("Starting game")
 		this.loadTextures()
 		this.setupInitialUnits()
         this.engine.start(this.assets).then(function () {
@@ -242,8 +240,6 @@ export class Game {
 			let frontierLength = frontier.length
 			for (let i = 0; i < frontierLength; i++) {
 				let pos = frontier[i]
-				//console.log("Expanding from " + pos.x.toString() + "," + pos.y.toString())
-
 				let left = new ex.Vector(pos.x - 1, pos.y)
 				let right = new ex.Vector(pos.x + 1, pos.y)
 				let up = new ex.Vector(pos.x, pos.y + 1)
@@ -400,10 +396,6 @@ export class Game {
     }
 
 	spawnEnemy() {
-		console.log("Spawned enemy")
-		//const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 1000 })
-		//this.addTimer(timer)
-
 		let x = utils.randomNumber(0,10)
 		let y = utils.randomNumber(0,10)
 
@@ -459,21 +451,13 @@ export class Game {
             return true
         }
 		return utils.isPosIn(gridPosition, this.activePlayer.visibleCoordinates)
-		// for (let i = 0; i < this.activePlayer.visibleCoordinates.length; i++) {
-		// 	let square = this.activePlayer.visibleCoordinates[i]
-		// 	if (square[0] == gridPosition.x && square[1] == gridPosition.y) { return true; }
-		// }
-		// return false
 	}
 
     bulletCollision(pixelPosition: ex.Vector, damage: number) {
         let cell = this.grid.getGridCell(pixelPosition)
-        if (!cell) { console.log("How????"); return }
-        console.log(`Fire on cell ${cell.gridPosition} with units ${cell.units.size}`)
-        console.log(cell.units)
+        if (!cell) { return } // 
         cell.units.forEach((unit: unit.Unit) => {
             unit.health -= damage
-            console.log(`Unit hit for ${damage}, now has ${unit.health}`)
         })
     }
 

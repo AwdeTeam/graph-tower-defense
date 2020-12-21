@@ -82,7 +82,6 @@ export class Player extends ex.Actor {
         const panMove = new ex.Vector(0, 0)
         if (engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
             panMove.y += 1
-            console.log("moving")
         }
         if (engine.input.keyboard.isHeld(ex.Input.Keys.Down)) {
             panMove.y -= 1
