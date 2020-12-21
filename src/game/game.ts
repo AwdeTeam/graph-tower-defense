@@ -110,7 +110,8 @@ export class Game {
 
 		this.activePlayer.initUI(this.engine,  this.config.display.height,this.config.display.width,
 		{
-			getUnitTexture: this.getUnitTexture.bind(this)
+			getUnitTexture: this.getUnitTexture.bind(this),
+			createGhost: this.createGhostUnit.bind(this)
 		})
     }
 
@@ -349,7 +350,14 @@ export class Game {
 
 	createGhostUnit()
 	{
-		if (this.activePlayer.ts.selectedIcon == null) { return }
+		if (this.activePlayer.ts.selectedIcon == null) {
+			if (this.activePlayer.ghostUnit != null)
+			{
+				this.engine.remove(this.activePlayer.ghostUnit)
+				this.activePlayer.ghostUnit = null
+			}
+			return 
+		}
 		let type = this.activePlayer.ts.selectedIcon.type
 		let ghostUnit = null
 
