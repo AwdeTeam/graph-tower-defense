@@ -366,7 +366,11 @@ export class Game {
 			if (type == unit.UnitType.gunTower) { cost = 100 }
 			else if (type == unit.UnitType.contTower) { cost = 500 }
 			else if (type == unit.UnitType.drilTower) { cost = 100 }
-			if (!p.spendResources(cost)) { return }
+			if (!p.spendResources(cost)) 
+			{ 
+				newUnit.destroy()
+				return null 
+			}
 		}
 
 		p.units.push(newUnit)
@@ -379,7 +383,8 @@ export class Game {
 		if (this.activePlayer.ghostUnit == null) { return }
 		let ghostUnit = this.activePlayer.ghostUnit
 
-		this.createUnit(this.activePlayer, ghostUnit.gridPosition, ghostUnit.type)
+		let result = this.createUnit(this.activePlayer, ghostUnit.gridPosition, ghostUnit.type)
+		if (result == null) { return }
 		this.engine.remove(ghostUnit)
 		this.removeAllEdgesFromUnit(this.activePlayer.ghostUnit)
 		this.activePlayer.ghostUnit = null
@@ -459,8 +464,10 @@ export class Game {
 
     setupInitialUnits() {
 		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower, true)
+		unit1.resources = 100
 		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
 		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower, true)
+		unit2.resources = 100
 
 		//let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
 		//this.engine.add(edge)
