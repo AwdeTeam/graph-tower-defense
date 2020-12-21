@@ -3,6 +3,7 @@ import * as unit from "./unit"
 
 export interface UICallbacks {
 	getUnitTexture: (type: unit.UnitType) => ex.Texture
+	createGhost: () => void
 }
 
 export class towerSelection extends ex.ScreenElement
@@ -87,6 +88,7 @@ export class towerSelection extends ex.ScreenElement
 					icon.selected = true
 					this.selectedIcon = icon
 				}
+				this.callbacks.createGhost()
 			}
 		}
     }
