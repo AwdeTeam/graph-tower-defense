@@ -96,7 +96,6 @@ export class Player extends ex.Actor {
 			//let unit = this.units[i]
 			if (this.units[i].dead)
 			{
-				console.log("Removing unit " + i.toString() + " for player " + this.id.toString())
 				engine.remove(this.units[i])
 				this.units.splice(i, 1)
 			}
@@ -178,7 +177,6 @@ export class Player extends ex.Actor {
 
 	spendResources(resourceCount: number): boolean
 	{
-		console.log("Trying to spend " + resourceCount.toString() + " resources")
 		if (this.getTotalResources() < resourceCount) { return false }
 
 		let roundRobin = resourceCount
@@ -198,6 +196,15 @@ export class Player extends ex.Actor {
 	addUnit(unit1: unit.Unit) { this.units.push(unit1) }
 	
 	
+	getNumGunTurrets(): number
+	{
+		let count = 0
+		for (let i = 0; i < this.units.length; i++)
+		{
+			if (this.units[i].type == unit.UnitType.gunTower) {count++}
+		}
+		return count
+	}
 
 	isCursorOverTS(pos: ex.Vector): boolean
 	{

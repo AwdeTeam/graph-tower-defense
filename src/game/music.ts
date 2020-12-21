@@ -50,7 +50,8 @@ export class MusicManager {
 		this.songs["ALL_plus"] = new Song("ALL_plus.mp3", 28800, loader)
 
 		
-		let nextName = this.chooseRandomSongName()
+		//let nextName = this.chooseRandomSongName()
+		let nextName = "base"
 		console.log("Next:" + nextName)
 		this.nextSong = this.songs[nextName]
 	}

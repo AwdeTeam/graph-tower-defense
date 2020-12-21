@@ -49,6 +49,7 @@ export interface UnitCallbacks {
 	getEngine: () => ex.Engine
 	removeAllEdgesFromUnit: (unit1: unit.Unit) => void
 	removeLabel: (lbl: ex.Label) => void
+	chooseRandomSquare: () => ex.Vector
 }
 
 export class Edge extends ex.Actor {
@@ -85,12 +86,14 @@ export class Edge extends ex.Actor {
 export class Unit extends ex.Actor {
     public type: UnitType
     public health: number
+	public maxHealth: number
     public gridPosition: ex.Vector
     callbacks: UnitCallbacks
 	playerID: number 
 	ghost: boolean
 	maxLinkDist: number
 	dead: boolean
+	edgeCount: number
 	
 	suppressCounts: boolean /// ?
 
@@ -98,6 +101,9 @@ export class Unit extends ex.Actor {
 	resources: number
 	lblPoints: ex.Label
 	lblResources: ex.Label
+	lblHealth: ex.Label
+
+	regenCooldown: number
 	
 
     constructor(
@@ -108,7 +114,8 @@ export class Unit extends ex.Actor {
         let pixelPosition = callbacks.placeOnGrid(gridPosition)
         super({x: pixelPosition.x, y: pixelPosition.y})
 		this.playerID = playerID
-        this.health = 10
+		this.maxHealth = 20
+        this.health = 20
         this.gridPosition = gridPosition
         this.type = type
         this.callbacks = callbacks
@@ -134,6 +141,8 @@ export class Unit extends ex.Actor {
 		this.dead = false
 		
 		this.makeAvailableEdges()
+
+		this.regenCooldown = 5000
     }
 
 	
@@ -142,14 +151,21 @@ export class Unit extends ex.Actor {
 		this.callbacks.removeAllEdgesFromUnit(this)
 		this.callbacks.removeLabel(this.lblPoints)
 		this.callbacks.removeLabel(this.lblResources)
+		this.callbacks.removeLabel(this.lblHealth)
 		this.dead = true
-		console.log("Destroying!")
 	}
 
 
 	makeAvailableEdges()
 	{
-		if (this.type == UnitType.mob) { return }
+		if (this.type == UnitType.mob) 
+		{ 
+			this.edgeCount = -1
+			return
+		}
+
+		this.edgeCount = 0
+		
 		let usePlayerID = this.playerID
 		if (usePlayerID == -1) { usePlayerID = 0 } // (ghosts still need to show edges)
 		let player = this.callbacks.getPlayerByID(usePlayerID)
@@ -163,9 +179,9 @@ export class Unit extends ex.Actor {
 			{
 				// make edge
 				this.callbacks.addEdge(this, u)
+				this.edgeCount++
 			}
 		}
-	
 	}
 
     public getPixelPosition(): ex.Vector {
@@ -183,14 +199,24 @@ export class Unit extends ex.Actor {
 		let lblP = new ex.Label({x: 0, y: 0})
 		lblP.color = ex.Color.Yellow
 		this.lblPoints = lblP
+
+		let lblH = new ex.Label({x: 0, y: 0})
+		lblH.color = ex.Color.Red
+		lblH.fontSize = 20
+		this.lblHealth = lblH
 		
 		this.callbacks.getEngine().add(lblR)
 		this.callbacks.getEngine().add(lblP)
+		this.callbacks.getEngine().add(lblH)
     }
 
 	public updateLbls()
 	{
-		if (this.ghost || this.type == UnitType.mob) { return }
+		if (this.ghost) { return }
+		this.lblHealth.pos = this.pos.add(new ex.Vector(5, -5))
+		this.lblHealth.text = this.health.toString()
+		
+		if ( this.type == UnitType.mob) { return }
 		this.lblResources.pos = this.pos.add(new ex.Vector(15, 30))
 		this.lblPoints.pos = this.pos.add(new ex.Vector(-30, 30))
 
@@ -201,16 +227,26 @@ export class Unit extends ex.Actor {
 
 	checkHealth() { if (this.health <= 0) { this.destroy(); return false; } return true; }
 	
+	checkRegen(delta: number)
+	{
+		this.regenCooldown -= delta
+		if (this.regenCooldown <= 0) { 
+			if (this.health < this.maxHealth) { this.health++ }
+			this.regenCooldown = 4000
+		}
+	}
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (!this.checkHealth()) { return }
+		this.checkRegen(delta)
+
     }
 
     public onPostDraw(ctx: CanvasRenderingContext2D, delta: number) {
         this.pos = this.getPixelPosition()
         ctx.font = "30px Arial"
         ctx.fillStyle = "#F00"
-        ctx.fillText(`${this.health}`, 0, 0)
+        //ctx.fillText(`${this.health}`, 0, 0)
 		this.updateLbls()
     }
 }
@@ -223,11 +259,14 @@ export class DrillUnit extends Unit
 	{
 		super(playerID, gridPosition, type, unitCallbacks)
 		this.mineCooldown = 1000
+		this.health = 5
+		this.maxHealth = 5
 	}
 
 	onPostUpdate(engine: ex.Engine, delta: number)
 	{
         if (!this.checkHealth()) { return }
+		//this.checkRegen(delta)
 		this.mineCooldown -= delta
 		if (this.mineCooldown <= 0)
 		{
@@ -257,6 +296,8 @@ export class CombatUnit extends Unit {
 		super(playerID, gridPosition, type, unitCallbacks)
 		this.combatUnitCallbacks = callbacks
 		this.shotCooldown = 1000
+		this.health = 5
+		this.maxHealth = 5
 	}
 
 	acquireTarget(): unit.Unit
@@ -276,6 +317,7 @@ export class CombatUnit extends Unit {
     public onPostUpdate(engine: ex.Engine, delta: number) {
 		if (this.ghost) { return }
         if (!this.checkHealth()) { return }
+		this.checkRegen(delta)
 		let target = this.acquireTarget()
 		if (target != null) 
 		{ 
@@ -291,7 +333,17 @@ export class CombatUnit extends Unit {
 		this.shotCooldown -= delta
 		if (this.shotCooldown > 0) { return }
 
+		// ammo
+		let cost = 1 // (harder version commented below)
+		//let cost = this.callbacks.getPlayerByID(this.playerID).getNumGunTurrets()
+		if (this.type != UnitType.mob)
+		{
+			if (this.resources < cost ) { return }
+		}
+
 		this.callbacks.shoot(this, targetPos)
+		this.resources -= cost
+		this.callbacks.getPlayerByID(this.playerID).redistributeResources()
 		this.shotCooldown = 1000
 	}
 }
@@ -320,6 +372,7 @@ export class MobileCombatUnit extends CombatUnit {
         ///this.mobileCallbacks = mobileCallbacks
 		this.speed = 1000
 		this.movementCooldown = 1000
+		this.health = 5
     }
 
 	// returns true if already at target 
@@ -376,6 +429,12 @@ export class MobileCombatUnit extends CombatUnit {
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (!this.checkHealth()) { return }
 		let target = this.acquireTarget()
+		if (target == null)
+		{
+			// get random square
+			let targetPos = this.callbacks.chooseRandomSquare()
+			this.moveTowardsTarget(targetPos, delta)
+		}
 		if (target != null) 
 		{ 
 			let targetPos = target.gridPosition
