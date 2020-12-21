@@ -83,6 +83,7 @@ export class Game {
             {
                 getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this),
                 getOffset: () => { return self.activePlayer.panOffset },
+				createGhost: this.createGhostUnit.bind(this)
             }
         )
 
@@ -124,7 +125,7 @@ export class Game {
 	{
 		if (event.key == ex.Input.Keys.Space)
 		{
-			this.createGhostUnit(this.activePlayer.ts.selectedIcon.type)
+			
 		}
 	}
 
@@ -339,8 +340,10 @@ export class Game {
 		return newUnit
 	}
 
-	createGhostUnit(type: unit.UnitType)
+	createGhostUnit()
 	{
+		if (this.activePlayer.ts.selectedIcon == null) { return }
+		let type = this.activePlayer.ts.selectedIcon.type
 		let ghostUnit = null
 
         let callbacks = {
@@ -366,7 +369,9 @@ export class Game {
 		{
 			ghostUnit = new unit.Unit(-1, this.grid.getSelected().gridPosition, type, callbacks)
 		}
-		
+
+		if (this.activePlayer.ghostUnit != null) { this.engine.remove(this.activePlayer.ghostUnit) }
+		this.activePlayer.ghostUnit = ghostUnit
 		this.engine.add(ghostUnit)
 	}
 	

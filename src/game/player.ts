@@ -55,7 +55,7 @@ export class Player extends ex.Actor {
         this.panOffset = new ex.Vector(0, 0)
 		this.units = []
 
-		//this.ghostUnit = 
+		this.ghostUnit = null
     }
 
 

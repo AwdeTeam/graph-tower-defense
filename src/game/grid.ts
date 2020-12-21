@@ -20,6 +20,7 @@ import {Unit} from "./unit"
 export interface GridCallbacks {
     getActiveVisibleCoordinates: (gridPosition: ex.Vector) => boolean
     getOffset: () => ex.Vector
+	createGhost: () => void
 }
 
 export class Grid extends ex.Actor {
@@ -86,7 +87,11 @@ export class Grid extends ex.Actor {
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
 		this.deselectAll()
         let cell = this.getGridCell(event.pos)
-        if (cell) { cell.mouseDownHandler(event) }
+        if (cell) { 
+			cell.mouseDownHandler(event) 
+			// TODO: (if not already handled? return flag above?)
+			this.callbacks.createGhost()
+		}
     }
 
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
