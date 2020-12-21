@@ -56,7 +56,9 @@ export class Game {
 	manager: MusicManager
 	textures: ex.Texture[]
 	shotTextures: ex.Texture[]
+	miscTextures: ex.Texture[]
 	edges: unit.Edge[]
+	
 
 	cachedNearestOwned: {gridPosition: ex.Vector, ownerID: number, out: unit.Unit, ttl: number}[]
 
@@ -85,7 +87,8 @@ export class Game {
             {
                 getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this),
                 getOffset: () => { return self.activePlayer.panOffset },
-				createGhost: this.createGhostUnit.bind(this)
+				createGhost: this.createGhostUnit.bind(this),
+				loadMiscTexture: this.getMiscTexture.bind(this)
             }
         )
 
@@ -443,6 +446,7 @@ export class Game {
 	loadTextures() {
 		this.textures = []
 		this.shotTextures = []
+		this.miscTextures = []
 
 		this.textures[unit.UnitType.contTower] = loadTexture("tower_control.png", this.assets)
 		this.textures[unit.UnitType.wallTower] = loadTexture("tower_basic.png", this.assets)
@@ -457,6 +461,8 @@ export class Game {
 		this.shotTextures[unit.ShotType.towerShot] = loadTexture("Projectile2.png", this.assets)
 		this.shotTextures[2] = loadTexture("Rat_tail2.png", this.assets)
 		this.shotTextures[3] = loadTexture("Rat_tailbig.png", this.assets)
+
+		this.miscTextures[0] = loadTexture("Ores.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
@@ -475,6 +481,11 @@ export class Game {
 			else if (textureVersion == 2) { return this.shotTextures[3] }
 		}
 		return this.shotTextures[type]
+	}
+	
+	getMiscTexture(index: number): ex.Texture
+	{
+		return this.miscTextures[index]
 	}
 
 	getGridSquareFromPosition(gridPosition: ex.Vector): grid.GridSquare
