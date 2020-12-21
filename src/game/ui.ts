@@ -41,6 +41,7 @@ export class towerSelection extends ex.ScreenElement
 		this.icons = []
 		this.icons.push(drill)
 		this.icons.push(control)
+		this.icons.push(gun)
 	}
 
 	
