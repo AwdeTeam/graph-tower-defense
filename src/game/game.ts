@@ -316,7 +316,8 @@ export class Game {
 		return this.engine
 	}
 
-	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
+	// force ignores cost
+	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType, force: boolean = false)
 	{
 		let newUnit = null
         let callbacks = {
@@ -359,7 +360,7 @@ export class Game {
 		}
 
 		// check cost
-		if (p.id == 0)
+		if (p.id == 0 && !force) 
 		{
 			let cost = 0
 			if (type == unit.UnitType.gunTower) { cost = 100 }
@@ -457,9 +458,9 @@ export class Game {
 	
 
     setupInitialUnits() {
-		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower)
+		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower, true)
 		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
-		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower)
+		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower, true)
 
 		//let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
 		//this.engine.add(edge)
