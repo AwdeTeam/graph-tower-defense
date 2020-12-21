@@ -208,7 +208,10 @@ export class DrillUnit extends Unit
 		this.mineCooldown -= delta
 		if (this.mineCooldown <= 0)
 		{
-			
+			let gs = this.callbacks.getGridSquareFromPosition(this.gridPosition)
+			if (gs.hasPoints) { this.points += 10 }
+			if (gs.hasResource) { this.resources += 10 }
+			this.mineCooldown = 1000
 		}
 	}
 }

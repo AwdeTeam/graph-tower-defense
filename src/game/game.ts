@@ -340,6 +340,10 @@ export class Game {
 			})
 			
 		}
+		else if (type == unit.UnitType.drilTower)
+		{
+			newUnit = new unit.DrillUnit(p.id, pos, type, callbacks)
+		}
 		else
 		{
 			newUnit = new unit.Unit(p.id, pos, type, callbacks)
