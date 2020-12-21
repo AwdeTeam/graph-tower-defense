@@ -56,6 +56,9 @@ export class Game {
 	manager: MusicManager
 	textures: ex.Texture[]
 	shotTextures: ex.Texture[]
+	miscTextures: ex.Texture[]
+	edges: unit.Edge[]
+	
 
 	cachedNearestOwned: {gridPosition: ex.Vector, ownerID: number, out: unit.Unit, ttl: number}[]
 
@@ -76,6 +79,7 @@ export class Game {
 		this.players = []
 		this.players.push(this.activePlayer)
 		this.players.push(this.aiPlayer)
+		this.edges = []
         this.grid = new grid.Grid(
             new ex.Vector(this.config.game.grid.width, this.config.game.grid.height),
             this.config.game.grid.squareSize,
@@ -83,7 +87,8 @@ export class Game {
             {
                 getActiveVisibleCoordinates: this.getActiveVisibleCoordinates.bind(this),
                 getOffset: () => { return self.activePlayer.panOffset },
-				createGhost: this.createGhostUnit.bind(this)
+				createGhost: this.createGhostUnit.bind(this),
+				loadMiscTexture: this.getMiscTexture.bind(this)
             }
         )
 
@@ -302,6 +307,11 @@ export class Game {
 	}
 
 
+	getEngine(): ex.Engine
+	{
+		return this.engine
+	}
+
 	createUnit(p: player.Player, pos: ex.Vector, type: unit.UnitType)
 	{
 		let newUnit = null
@@ -313,6 +323,8 @@ export class Game {
             shoot: this.shoot.bind(this),
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
+			addEdge: this.addEdge.bind(this),
+			getEngine: this.getEngine.bind(this)
         }
 		if (type == unit.UnitType.mob)
 		{
@@ -348,6 +360,7 @@ export class Game {
 
 		this.createUnit(this.activePlayer, ghostUnit.gridPosition, ghostUnit.type)
 		this.engine.remove(ghostUnit)
+		this.removeAllEdgesFromUnit(this.activePlayer.ghostUnit)
 		this.activePlayer.ghostUnit = null
 	}
 
@@ -357,6 +370,7 @@ export class Game {
 			if (this.activePlayer.ghostUnit != null)
 			{
 				this.engine.remove(this.activePlayer.ghostUnit)
+				this.removeAllEdgesFromUnit(this.activePlayer.ghostUnit)
 				this.activePlayer.ghostUnit = null
 			}
 			return 
@@ -372,6 +386,8 @@ export class Game {
             shoot: this.shoot.bind(this),
             addToGrid: this.grid.unitAdd.bind(this.grid),
             moveOnGrid: this.grid.unitMove.bind(this.grid),
+			addEdge: this.addEdge.bind(this),
+			getEngine: this.getEngine.bind(this)
         }
 		
 		if (type == unit.UnitType.gunTower)
@@ -388,9 +404,33 @@ export class Game {
 			ghostUnit = new unit.Unit(-1, this.grid.getSelected().gridPosition, type, callbacks)
 		}
 
-		if (this.activePlayer.ghostUnit != null) { this.engine.remove(this.activePlayer.ghostUnit) }
+		if (this.activePlayer.ghostUnit != null) {
+			this.removeAllEdgesFromUnit(this.activePlayer.ghostUnit)
+			this.engine.remove(this.activePlayer.ghostUnit)
+		}
 		this.activePlayer.ghostUnit = ghostUnit
 		this.engine.add(ghostUnit)
+	}
+
+	addEdge(unit1: unit.Unit, unit2: unit.Unit)
+	{
+		let ghost = false
+		if (unit1.ghost || unit2.ghost) { ghost = true }
+		let edge = new unit.Edge(unit1, unit2, ghost, { getGridSize: this.getGridSize.bind(this) })
+		this.engine.add(edge)
+		this.edges.push(edge)
+	}
+
+	removeAllEdgesFromUnit(unit1: unit.Unit)
+	{
+		for (let i = this.edges.length - 1; i >= 0; i--)
+		{
+			if (this.edges[i].unit1 == unit1 || this.edges[i].unit2 == unit1)
+			{
+				this.engine.remove(this.edges[i])
+				this.edges.splice(i, 1)
+			}
+		}
 	}
 	
 
@@ -399,8 +439,8 @@ export class Game {
 		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
 		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower)
 
-		let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
-		this.engine.add(edge)
+		//let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
+		//this.engine.add(edge)
 		
 		//let enemey1 = this.createUnit(this.aiPlayer, new ex.Vector(12, 5), unit.UnitType.mob)
 		this.spawnEnemy()
@@ -416,6 +456,7 @@ export class Game {
 	loadTextures() {
 		this.textures = []
 		this.shotTextures = []
+		this.miscTextures = []
 
 		this.textures[unit.UnitType.contTower] = loadTexture("tower_control.png", this.assets)
 		this.textures[unit.UnitType.wallTower] = loadTexture("tower_basic.png", this.assets)
@@ -430,6 +471,9 @@ export class Game {
 		this.shotTextures[unit.ShotType.towerShot] = loadTexture("Projectile2.png", this.assets)
 		this.shotTextures[2] = loadTexture("Rat_tail2.png", this.assets)
 		this.shotTextures[3] = loadTexture("Rat_tailbig.png", this.assets)
+
+		this.miscTextures[0] = loadTexture("Ores.png", this.assets)
+		this.miscTextures[1] = loadTexture("Ores_Gold.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
@@ -448,6 +492,11 @@ export class Game {
 			else if (textureVersion == 2) { return this.shotTextures[3] }
 		}
 		return this.shotTextures[type]
+	}
+	
+	getMiscTexture(index: number): ex.Texture
+	{
+		return this.miscTextures[index]
 	}
 
 	getGridSquareFromPosition(gridPosition: ex.Vector): grid.GridSquare

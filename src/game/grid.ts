@@ -16,11 +16,13 @@ import * as ex from "excalibur"
 
 import * as terrains from "./data/terrains.json"
 import {Unit} from "./unit"
+import * as utils from "./util"
 
 export interface GridCallbacks {
     getActiveVisibleCoordinates: (gridPosition: ex.Vector) => boolean
     getOffset: () => ex.Vector
 	createGhost: () => void
+	loadMiscTexture: (index: number) => ex.Texture
 }
 
 export class Grid extends ex.Actor {
@@ -133,6 +135,15 @@ export class Grid extends ex.Actor {
                     this.cellSideLength,
                     this.callbacks)
                 gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
+				// TODO: randomly generate whether there's a resource here or not
+				let resourceOrNo = utils.randomNumber(0, 40)
+				if (resourceOrNo == 0) { gridSquare.hasResource = true }
+				else {
+					let pointOrNo = utils.randomNumber(0, 40)
+					if (pointOrNo == 0) { gridSquare.hasPoints = true }
+				}
+				
+				
 				this.squares[x][y] = gridSquare
 			}
 		}
@@ -159,6 +170,9 @@ export class GridSquare extends ex.Actor {
 	selected: boolean
 	hovered: boolean
 	
+	hasResource: boolean
+	hasPoints: boolean
+	
 	constructor(gridPosition: ex.Vector, cellSideLength: number, callbacks: GridCallbacks) {
         let localPos = gridPosition.scale(cellSideLength)
 		super({x: localPos.x, y: localPos.y, width: cellSideLength, height: cellSideLength})
@@ -170,6 +184,9 @@ export class GridSquare extends ex.Actor {
 		this.enableCapturePointer = true
 		this.borderColor = "#000"
 		this.enableCapturePointer = true
+
+		this.hasResource = false
+		this.hasPoints = false
 	}
 
     public onPreUpdate(engine: ex.Engine, delta: number) {
@@ -232,6 +249,19 @@ export class GridSquare extends ex.Actor {
 		else if (this.hovered) { ctx.strokeStyle = "#00F" }
 		else { ctx.strokeStyle = "#000" }
         ctx.strokeRect(localPos.x, localPos.y, this.cellSideLength-1, this.cellSideLength-1)
+
+		if (this.hasResource)
+		{
+			ctx.globalAlpha = .8
+			ctx.drawImage(this.callbacks.loadMiscTexture(0).image, localPos.x, localPos.y)
+			ctx.globalAlpha = 1.0
+		}
+		else if (this.hasPoints)
+		{
+			ctx.globalAlpha = .8
+			ctx.drawImage(this.callbacks.loadMiscTexture(1).image, localPos.x, localPos.y)
+			ctx.globalAlpha = 1.0
+		}
 	}
 }
 

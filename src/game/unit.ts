@@ -45,18 +45,22 @@ export interface UnitCallbacks {
 	getPlayerByID: (id: number) => player.Player
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
+	addEdge: (unit1: unit.Unit, unit2: unit.Unit) => void
+	getEngine: () => ex.Engine
 }
 
 export class Edge extends ex.Actor {
 	unit1: Unit
 	unit2: Unit
 	callbacks: EdgeCallbacks
+	ghost: boolean
 	
-	constructor(unit1: Unit, unit2: Unit, callbacks: EdgeCallbacks) {
+	constructor(unit1: Unit, unit2: Unit, ghost: boolean, callbacks: EdgeCallbacks) {
 		super()
 		this.unit1 = unit1
 		this.unit2 = unit2
 		this.callbacks = callbacks
+		this.ghost = ghost
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -69,6 +73,8 @@ export class Edge extends ex.Actor {
 		ctx.moveTo(point1.x, point1.y)
 		ctx.lineTo(point2.x, point2.y)
 		ctx.lineWidth = 5
+		if (this.ghost) { ctx.strokeStyle = "rgba(0, 0, 0, .5)" }
+		else {	ctx.strokeStyle = "rgba(0, 0, 0, 1.0)" }
 		ctx.stroke()
 	}
 }
@@ -79,8 +85,17 @@ export class Unit extends ex.Actor {
     public health: number
     public gridPosition: ex.Vector
     callbacks: UnitCallbacks
-	playerID: number // ?
+	playerID: number 
 	ghost: boolean
+	maxLinkDist: number
+	
+	suppressCounts: boolean /// ?
+
+	points: number
+	resources: number
+	lblPoints: ex.Label
+	lblResources: ex.Label
+	
 
     constructor(
 			playerID: number,
@@ -97,12 +112,45 @@ export class Unit extends ex.Actor {
         this.callbacks.addToGrid(this, this.gridPosition)
         this.traits = [] // Oh boy am I not a fan of this solution...
 
+		this.resources = 0
+		this.points = 0
+
 		if (this.playerID == -1) {
 			this.ghost = true
 			this.opacity = .5
 		}
 		else { this.ghost = false }
+
+
+		this.maxLinkDist = 100
+		if (this.type == UnitType.contTower)
+		{
+			this.maxLinkDist = 500
+		}
+		
+		this.makeAvailableEdges()
     }
+
+
+	makeAvailableEdges()
+	{
+		let usePlayerID = this.playerID
+		if (usePlayerID == -1) { usePlayerID = 0 } // (ghosts still need to show edges)
+		let player = this.callbacks.getPlayerByID(usePlayerID)
+
+		for (let i = 0; i < player.units.length; i++)
+		{
+			let u = player.units[i]
+			if (u == this) { continue }
+			let diff = this.pos.sub(u.pos)
+			if (diff.size < this.maxLinkDist + u.maxLinkDist)
+			{
+				// make edge
+				this.callbacks.addEdge(this, u)
+			}
+		}
+	
+	}
 
     public getPixelPosition(): ex.Vector {
         return this.callbacks.placeOnGrid(this.gridPosition)
@@ -110,7 +158,29 @@ export class Unit extends ex.Actor {
 
     public onInitialize() {
         this.addDrawing(this.callbacks.loadTexture(this.type))
+
+
+		let lblR = new ex.Label({x: 0, y: 0})
+		lblR.color = ex.Color.Orange
+		this.lblResources = lblR
+
+		let lblP = new ex.Label({x: 0, y: 0})
+		lblP.color = ex.Color.Yellow
+		this.lblPoints = lblP
+		
+		this.callbacks.getEngine().add(lblR)
+		this.callbacks.getEngine().add(lblP)
     }
+
+	public updateLbls()
+	{
+		if (this.ghost || this.type == UnitType.mob) { return }
+		this.lblResources.pos = this.pos.add(new ex.Vector(15, 30))
+		this.lblPoints.pos = this.pos.add(new ex.Vector(-30, 30))
+
+		this.lblResources.text = this.resources.toString()
+		this.lblPoints.text = this.points.toString()
+	}
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (this.health <= 0) {
@@ -132,7 +202,28 @@ export class Unit extends ex.Actor {
         ctx.font = "30px Arial"
         ctx.fillStyle = "#F00"
         ctx.fillText(`${this.health}`, 0, 0)
+		this.updateLbls()
     }
+}
+
+export class DrillUnit extends Unit
+{
+	mineCooldown: number
+	
+    constructor(playerID: number, gridPosition: ex.Vector, type: UnitType, unitCallbacks: UnitCallbacks)
+	{
+		super(playerID, gridPosition, type, unitCallbacks)
+		this.mineCooldown = 1000
+	}
+
+	onPostUpdate(engine: ex.Engine, delta: number)
+	{
+		this.mineCooldown -= delta
+		if (this.mineCooldown <= 0)
+		{
+			
+		}
+	}
 }
 
 export interface CombatUnitCallbacks {
