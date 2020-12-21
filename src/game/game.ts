@@ -125,9 +125,10 @@ export class Game {
 	{
 		if (event.key == ex.Input.Keys.Space)
 		{
-			
+			this.makeGhostReal()
 		}
 	}
+
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
 		let handled = this.activePlayer.mouseDownHandler(event)
@@ -338,6 +339,16 @@ export class Game {
 		p.units.push(newUnit)
 		this.engine.add(newUnit)
 		return newUnit
+	}
+	
+	makeGhostReal()
+	{
+		if (this.activePlayer.ghostUnit == null) { return }
+		let ghostUnit = this.activePlayer.ghostUnit
+
+		this.createUnit(this.activePlayer, ghostUnit.gridPosition, ghostUnit.type)
+		this.engine.remove(ghostUnit)
+		this.activePlayer.ghostUnit = null
 	}
 
 	createGhostUnit()
