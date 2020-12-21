@@ -45,6 +45,7 @@ export interface UnitCallbacks {
 	getPlayerByID: (id: number) => player.Player
 	getGridSquareFromPosition: (gridPosition: ex.Vector) => grid.GridSquare
 	shoot: (originatingUnit: unit.Unit, targetPos: ex.Vector) => void
+	addEdge: (unit1: unit.Unit, unit2: unit.Unit) => void
 }
 
 export class Edge extends ex.Actor {
@@ -78,6 +79,7 @@ export class Unit extends ex.Actor {
     callbacks: UnitCallbacks
 	playerID: number // ?
 	ghost: boolean
+	maxLinkDist: number
 
     constructor(
 			playerID: number,
@@ -99,7 +101,40 @@ export class Unit extends ex.Actor {
 			this.opacity = .5
 		}
 		else { this.ghost = false }
+
+
+		this.maxLinkDist = 100
+		if (this.type == UnitType.contTower)
+		{
+			this.maxLinkDist = 500
+		}
+		
+		this.makeAvailableEdges()
     }
+
+
+	makeAvailableEdges()
+	{
+		let usePlayerID = this.playerID
+		if (usePlayerID == -1) { usePlayerID = 0 } // (ghosts still need to show edges)
+		let player = this.callbacks.getPlayerByID(usePlayerID)
+
+		for (let i = 0; i < player.units.length; i++)
+		{
+			let u = player.units[i]
+			console.log("Checking unit " + i.toString())
+			if (u == this) { continue }
+			let diff = this.pos.sub(u.pos)
+			console.log(diff.size)
+			if (diff.size < this.maxLinkDist + u.maxLinkDist)
+			{
+				console.log("It's good!")
+				// make edge
+				this.callbacks.addEdge(this, u)
+			}
+		}
+	
+	}
 
     public getPixelPosition(): ex.Vector {
         return this.callbacks.placeOnGrid(this.gridPosition)
