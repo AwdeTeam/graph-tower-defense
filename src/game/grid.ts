@@ -137,8 +137,12 @@ export class Grid extends ex.Actor {
                 gridSquare.terrain = new Terrain(this.terrainGenerator(gridSquare))
 				// TODO: randomly generate whether there's a resource here or not
 				let resourceOrNo = utils.randomNumber(0, 40)
-				if (resourceOrNo == 0) {
-					gridSquare.hasResource = true }
+				if (resourceOrNo == 0) { gridSquare.hasResource = true }
+				else {
+					let pointOrNo = utils.randomNumber(0, 40)
+					if (pointOrNo == 0) { gridSquare.hasPoints = true }
+				}
+				
 				
 				this.squares[x][y] = gridSquare
 			}
@@ -167,6 +171,7 @@ export class GridSquare extends ex.Actor {
 	hovered: boolean
 	
 	hasResource: boolean
+	hasPoints: boolean
 	
 	constructor(gridPosition: ex.Vector, cellSideLength: number, callbacks: GridCallbacks) {
         let localPos = gridPosition.scale(cellSideLength)
@@ -181,6 +186,7 @@ export class GridSquare extends ex.Actor {
 		this.enableCapturePointer = true
 
 		this.hasResource = false
+		this.hasPoints = false
 	}
 
     unitLeave(unit: Unit) {
@@ -233,8 +239,14 @@ export class GridSquare extends ex.Actor {
 
 		if (this.hasResource)
 		{
-			ctx.globalAlpha = .6
+			ctx.globalAlpha = .8
 			ctx.drawImage(this.callbacks.loadMiscTexture(0).image, localPos.x, localPos.y)
+			ctx.globalAlpha = 1.0
+		}
+		else if (this.hasPoints)
+		{
+			ctx.globalAlpha = .8
+			ctx.drawImage(this.callbacks.loadMiscTexture(1).image, localPos.x, localPos.y)
 			ctx.globalAlpha = 1.0
 		}
 	}

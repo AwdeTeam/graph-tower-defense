@@ -193,6 +193,26 @@ export class Unit extends ex.Actor {
     }
 }
 
+export class DrillUnit extends Unit
+{
+	mineCooldown: number
+	
+    constructor(playerID: number, gridPosition: ex.Vector, type: UnitType, unitCallbacks: UnitCallbacks)
+	{
+		super(playerID, gridPosition, type, unitCallbacks)
+		this.mineCooldown = 1000
+	}
+
+	onPostUpdate(engine: ex.Engine, delta: number)
+	{
+		this.mineCooldown -= delta
+		if (this.mineCooldown <= 0)
+		{
+			
+		}
+	}
+}
+
 export interface CombatUnitCallbacks {
     findNearestOwned: (gridPosition: ex.Vector, ownerID: number) => Unit
 	getOtherPlayer: (myPlayer: player.Player) => player.Player

@@ -470,6 +470,7 @@ export class Game {
 		this.shotTextures[3] = loadTexture("Rat_tailbig.png", this.assets)
 
 		this.miscTextures[0] = loadTexture("Ores.png", this.assets)
+		this.miscTextures[1] = loadTexture("Ores_Gold.png", this.assets)
 	}
 
 	getGridSize() { return this.config.game.grid.squareSize }
