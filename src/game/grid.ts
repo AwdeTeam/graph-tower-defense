@@ -45,11 +45,22 @@ export class Grid extends ex.Actor {
         this.fakeonInitialize()
 	}
 
+	deselectAll()
+	{
+		for (let i = 0; i < this.squares.length; i++)
+		{
+			for (let j = 0; j < this.squares[i].length; j++)
+			{
+				this.squares[i][j].selected = false
+			}
+		}
+	}
+	
     getGridCell(pixelPosition: ex.Vector): GridSquare {
-		// TODO: pan offset, pass in from game
-        let localPos = pixelPosition.scale(1/this.cellSideLength).add(this.callbacks.getOffset())
-        let [x, y] = [Math.floor(localPos.x), Math.floor(localPos.y)]
-        if (0 < x && x < this.squares.length && 0 < y && y < this.squares[x].length) {
+		let localPos = pixelPosition.sub(this.callbacks.getOffset())
+		let scaled = localPos.scale(1/this.cellSideLength)
+        let [x, y] = [Math.floor(scaled.x), Math.floor(scaled.y)]
+        if (0 <= x && x < this.squares.length && 0 <= y && y < this.squares[x].length) {
             return this.squares[x][y]
         }
         return null
@@ -64,6 +75,7 @@ export class Grid extends ex.Actor {
     }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
+		this.deselectAll()
         let cell = this.getGridCell(event.pos)
         if (cell) { cell.mouseDownHandler(event) }
     }
@@ -137,6 +149,8 @@ export class GridSquare extends ex.Actor {
 	callbacks: GridCallbacks
 	borderColor: string
     units: Set<Unit>
+	selected: boolean
+	hovered: boolean
 	
 	constructor(gridPosition: ex.Vector, cellSideLength: number, callbacks: GridCallbacks) {
         let localPos = gridPosition.scale(cellSideLength)
@@ -163,7 +177,8 @@ export class GridSquare extends ex.Actor {
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
         console.log(this.gridPosition)
-        this.borderColor = "#0FF"
+        //this.borderColor = "#0FF"
+		this.selected = true
     }
 
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
@@ -172,10 +187,12 @@ export class GridSquare extends ex.Actor {
 
 	mouseEnterHandler(event: ex.Input.PointerMoveEvent) {
 		this.borderColor = "#00F"
+		this.hovered = true
 	}
 	
 	mouseLeaveHandler(event: ex.Input.PointerMoveEvent) {
 		this.borderColor = "#000"
+		this.hovered = false
 	}
 
     getLocalPosition(): ex.Vector {
@@ -192,7 +209,11 @@ export class GridSquare extends ex.Actor {
             ctx.fillStyle = this.terrain.backgroundColorHexString
             ctx.fillRect(localPos.x, localPos.y, this.cellSideLength, this.cellSideLength)
         }
-		ctx.strokeStyle = this.borderColor
+
+		//ctx.strokeStyle = this.borderColor
+		if (this.selected) { ctx.strokeStyle = "#0FF" }
+		else if (this.hovered) { ctx.strokeStyle = "#00F" }
+		else { ctx.strokeStyle = "#000" }
         ctx.strokeRect(localPos.x, localPos.y, this.cellSideLength-1, this.cellSideLength-1)
 	}
 }

@@ -95,14 +95,24 @@ export class Player extends ex.Actor {
 	addUnit(unit: unit.Unit) { this.units.push(unit) }
 	
 	
-    // mouseDownHandler(event: ex.Input.PointerDownEvent) {
-    //     //this.hover = true
-    // }
 
 	isCursorOverTS(pos: ex.Vector): boolean
 	{
 		return (pos.y > this.windowHeight - this.ts.height)
 	}
+	
+    mouseDownHandler(event: ex.Input.PointerDownEvent) {
+		let handled = false
+		if (this.ts != undefined)
+		{
+			if (this.isCursorOverTS(event.pos))
+			{
+				//this.ts.mouseUpHandler(event)
+				handled = true
+			}
+		}
+		return handled
+    }
 
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
 		let handled = false

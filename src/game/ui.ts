@@ -63,15 +63,23 @@ export class towerSelection extends ex.ScreenElement
     //     //this.hover = true
     // }
 
+	deselectAllIcons()
+	{
+		for (let i = 0 ; i < this.icons.length; i++)
+		{
+			this.icons[i].selected = false
+		}
+	}
+
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
 		for (let i = 0; i < this.icons.length; i++)
 		{
 			let icon = this.icons[i]
 			if (icon.isPosIn(event.pos)) {
+				this.deselectAllIcons()
 				icon.selected = true
 				this.selectedIcon = icon
 			}
-			else { icon.selected = false }
 		}
     }
 

@@ -119,15 +119,17 @@ export class Game {
     }
 
     mouseDownHandler(event: ex.Input.PointerDownEvent) {
-		console.log("down?")
-        this.grid.mouseDownHandler(event)
+		let handled = this.activePlayer.mouseDownHandler(event)
+		if (!handled)
+		{
+			this.grid.mouseDownHandler(event)
+		}
     }
 
     mouseUpHandler(event: ex.Input.PointerUpEvent) {
         let handled = this.activePlayer.mouseUpHandler(event)
 		if (!handled)
 		{
-			console.log("SENDING ON TO GRID")
 			this.grid.mouseUpHandler(event)
 		}
     }
