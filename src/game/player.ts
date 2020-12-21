@@ -111,9 +111,7 @@ export class Player extends ex.Actor {
 
 	redistributeResources()
 	{
-		let totalResources = 0
-		// get a total sum of all resources (TODO: make this a function)
-		for (let i = 0; i < this.units.length; i++) { totalResources += this.units[i].resources }
+		let totalResources = this.getTotalResources()
 
 		let resourcesPer = Math.floor(totalResources / this.units.length)
 		let overflow = Math.floor(totalResources - (resourcesPer * this.units.length))
@@ -128,6 +126,21 @@ export class Player extends ex.Actor {
 			i++
 			if (i >= this.units.length) { i=0 }
 		}
+	}
+
+	getTotalResources(): number
+	{
+		let totalResources = 0
+		// get a total sum of all resources (TODO: make this a function)
+		for (let i = 0; i < this.units.length; i++) { totalResources += this.units[i].resources }
+		return totalResources
+	}
+
+	getTotalPoints(): number
+	{
+		let totalPoints = 0
+		for (let i = 0; i < this.units.length; i++) { totalPoints += this.units[i].points }
+		return totalPoints
 	}
 
 	redistributePoints()
