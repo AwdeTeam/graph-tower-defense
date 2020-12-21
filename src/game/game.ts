@@ -117,7 +117,8 @@ export class Game {
 		this.activePlayer.initUI(this.engine,  this.config.display.height,this.config.display.width,
 		{
 			getUnitTexture: this.getUnitTexture.bind(this),
-			createGhost: this.createGhostUnit.bind(this)
+			createGhost: this.createGhostUnit.bind(this),
+            getPlayerResources: this.activePlayer.getResourceCollection.bind(this.activePlayer)
 		})
     }
 
