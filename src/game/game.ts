@@ -301,7 +301,7 @@ export class Game {
 						gridPosition: gridPosition, 
 						ownerID: ownerID,
 						out: out,
-						ttl: 200
+						ttl: 400
 					})
 					return out 
 				}
@@ -312,7 +312,7 @@ export class Game {
 			gridPosition: gridPosition, 
 			ownerID: ownerID,
 			out: null,
-			ttl: 200
+			ttl: 400
 		})
 		
 		return null
