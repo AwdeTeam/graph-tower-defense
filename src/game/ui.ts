@@ -45,7 +45,6 @@ export class towerSelection extends ex.ScreenElement
         this.icons.push(gun)
 		this.icons.push(drill)
 		this.icons.push(control)
-		this.icons.push(gun)
 	}
 
 	
@@ -56,7 +55,7 @@ export class towerSelection extends ex.ScreenElement
         ctx.font = "22px Arial"
         let collection = this.callbacks.getPlayerResources()
 		if (this.maximumScore < collection.points) { this.maximumScore = collection.points }
-        ctx.fillText(`Resources: ${collection.resources} Points: ${collection.points} Max: ${this.maximumScore}`,
+        ctx.fillText(`Resources: ${Math.trunc(collection.resources)} Points: ${Math.trunc(collection.points)} Max: ${Math.trunc(this.maximumScore)}`,
             this.right-550, this.bottom-15)
 	}
 	

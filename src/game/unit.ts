@@ -214,14 +214,14 @@ export class Unit extends ex.Actor {
 	{
 		if (this.ghost) { return }
 		this.lblHealth.pos = this.pos.add(new ex.Vector(5, -5))
-		this.lblHealth.text = this.health.toString()
+		this.lblHealth.text = Math.trunc(this.health).toString()
 		
 		if ( this.type == UnitType.mob) { return }
 		this.lblResources.pos = this.pos.add(new ex.Vector(15, 30))
 		this.lblPoints.pos = this.pos.add(new ex.Vector(-30, 30))
 
-		this.lblResources.text = this.resources.toString()
-		this.lblPoints.text = this.points.toString()
+		this.lblResources.text = Math.trunc(this.resources).toString()
+		this.lblPoints.text = Math.trunc(this.points).toString()
 	}
 
 
@@ -229,12 +229,8 @@ export class Unit extends ex.Actor {
 	
 	checkRegen(delta: number)
 	{
-		this.regenCooldown -= delta
-		if (this.regenCooldown <= 0) { 
-			if (this.health < this.maxHealth) { this.health++ }
-			this.regenCooldown = 4000
-		}
-	}
+        if (this.health < this.maxHealth) { this.health += delta/this.regenCooldown }
+    }
 
     public onPostUpdate(engine: ex.Engine, delta: number) {
         if (!this.checkHealth()) { return }
@@ -246,7 +242,6 @@ export class Unit extends ex.Actor {
         this.pos = this.getPixelPosition()
         ctx.font = "30px Arial"
         ctx.fillStyle = "#F00"
-        //ctx.fillText(`${this.health}`, 0, 0)
 		this.updateLbls()
     }
 }
@@ -266,15 +261,9 @@ export class DrillUnit extends Unit
 	onPostUpdate(engine: ex.Engine, delta: number)
 	{
         if (!this.checkHealth()) { return }
-		//this.checkRegen(delta)
-		this.mineCooldown -= delta
-		if (this.mineCooldown <= 0)
-		{
-			let gs = this.callbacks.getGridSquareFromPosition(this.gridPosition)
-			if (gs.hasPoints) { this.points += 10 }
-			if (gs.hasResource) { this.resources += 10 }
-			this.mineCooldown = 1000
-		}
+        let gs = this.callbacks.getGridSquareFromPosition(this.gridPosition)
+        if (gs.hasPoints) { this.points += 10*delta/this.mineCooldown }
+        if (gs.hasResource) { this.resources += 10*delta/this.mineCooldown }
 	}
 }
 
