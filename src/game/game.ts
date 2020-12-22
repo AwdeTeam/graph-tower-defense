@@ -23,13 +23,13 @@ import * as utils from "./util"
 
 const defaultConfig = {
     display: {
-        width: 800,
-        height: 600,
+        width: 1200,
+        height: 850,
     },
     game: {
         grid: {
-            width: 16,
-            height: 12,
+            width: 25,
+            height: 25,
             squareSize: 60,
         },
     },
@@ -58,6 +58,9 @@ export class Game {
 	shotTextures: ex.Texture[]
 	miscTextures: ex.Texture[]
 	edges: unit.Edge[]
+
+	enemyHealth: number
+	spawnRate: number
 	
 
 	cachedNearestOwned: {gridPosition: ex.Vector, ownerID: number, out: unit.Unit, ttl: number}[]
@@ -74,6 +77,7 @@ export class Game {
             height: this.config.display.height,
             canvasElement: this.canvas,
         })
+		this.engine.backgroundColor = new ex.Color(10, 10, 10)
 		this.activePlayer = new player.Player(0, "user")
 		this.aiPlayer = new player.Player(1, "ai")
 		this.players = []
@@ -120,6 +124,10 @@ export class Game {
 			createGhost: this.createGhostUnit.bind(this),
             getPlayerResources: this.activePlayer.getResourceCollection.bind(this.activePlayer)
 		})
+
+		this.enemyHealth = 5
+		this.spawnRate = 5000
+
     }
 
     setupHandlers() {
@@ -331,7 +339,8 @@ export class Game {
 			addEdge: this.addEdge.bind(this),
 			getEngine: this.getEngine.bind(this),
 			removeAllEdgesFromUnit: this.removeAllEdgesFromUnit.bind(this),
-			removeLabel: this.removeLabel.bind(this)
+			removeLabel: this.removeLabel.bind(this),
+			chooseRandomSquare: this.chooseRandomSquare.bind(this)
         }
 		if (type == unit.UnitType.mob)
 		{
@@ -359,15 +368,23 @@ export class Game {
 			newUnit = new unit.Unit(p.id, pos, type, callbacks)
 		}
 
-		// check cost
+		// check cost and if within reach
 		if (p.id == 0 && !force) 
 		{
+			if (newUnit.edgeCount == 0) 
+			{ 
+				this.showError("No edges!!")
+				newUnit.destroy();
+				return null
+			}
+			
 			let cost = 0
-			if (type == unit.UnitType.gunTower) { cost = 50 }
+			if (type == unit.UnitType.gunTower) { cost = 150 }
 			else if (type == unit.UnitType.contTower) { cost = 300 }
 			else if (type == unit.UnitType.drilTower) { cost = 50 }
 			if (!p.spendResources(cost)) 
 			{ 
+				this.showError("Insufficient resources")
 				newUnit.destroy()
 				return null 
 			}
@@ -376,6 +393,11 @@ export class Game {
 		p.units.push(newUnit)
 		this.engine.add(newUnit)
 		return newUnit
+	}
+
+	showError(text: string)
+	{
+		console.log("ERROR " + text)
 	}
 	
 	makeGhostReal()
@@ -415,8 +437,8 @@ export class Game {
 			addEdge: this.addEdge.bind(this),
 			getEngine: this.getEngine.bind(this),
 			removeAllEdgesFromUnit: this.removeAllEdgesFromUnit.bind(this),
-			removeLabel: this.removeLabel.bind(this)
-		
+			removeLabel: this.removeLabel.bind(this),
+			chooseRandomSquare: this.chooseRandomSquare.bind(this)
         }
 		if (type == unit.UnitType.gunTower)
 		{
@@ -461,28 +483,49 @@ export class Game {
 		}
 	}
 	
+	chooseRandomSquare()
+	{
+		let x = utils.randomNumber(0, this.config.game.grid.width)
+		let y = utils.randomNumber(0, this.config.game.grid.height)
+		return new ex.Vector(x, y)
+	}
 
     setupInitialUnits() {
-		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(1,1), unit.UnitType.contTower, true)
-		unit1.resources = 100
-		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.drilTower)
-		let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower, true)
-		unit2.resources = 100
 
-		//let edge = new unit.Edge(unit1, unit2, { getGridSize: this.getGridSize.bind(this) })
-		//this.engine.add(edge)
+		let middleX = Math.floor(this.config.game.grid.width / 2)
+		let middleY = Math.floor(this.config.game.grid.height / 2)
+
+		//let randomX = utils.randomNumber(middleX - 3, middleY - 3)
+		//let randomX = utils.randomNumber(middleX - 3, middleY - 3)
 		
-		//let enemey1 = this.createUnit(this.aiPlayer, new ex.Vector(12, 5), unit.UnitType.mob)
+		let unit1 = this.createUnit(this.activePlayer, new ex.Vector(middleX,middleY), unit.UnitType.contTower, true)
+		
+		unit1.resources = 400
+		//let unit2 = this.createUnit(this.activePlayer, new ex.Vector(6, 8), unit.UnitType.gunTower, true)
+		//unit2.resources = 100
+
 		this.spawnEnemy()
+		
+		const timer = new ex.Timer({ fcn: () => { this.difficultyIncrease() }, interval: 10000})
+		this.addTimer(timer)
     }
 
+	difficultyIncrease()
+	{
+		this.enemyHealth++
+		if (this.spawnRate > 500) { this.spawnRate -= 500	}
+		
+		
+		const timer = new ex.Timer({ fcn: () => { this.difficultyIncrease() }, interval: 10000 })
+		this.addTimer(timer)
+	}
+
 	spawnEnemy() {
-		let x = utils.randomNumber(0,10)
-		let y = utils.randomNumber(0,10)
-		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: 5000})
+		const timer = new ex.Timer({ fcn: () => { this.spawnEnemy() }, interval: this.spawnRate})
 		this.addTimer(timer)
 
-		let enemey = this.createUnit(this.aiPlayer, new ex.Vector(x, y), unit.UnitType.mob)
+		let enemy = this.createUnit(this.aiPlayer, this.chooseRandomSquare(), unit.UnitType.mob)
+		enemy.health = this.enemyHealth
 	}
 
 	loadTextures() {

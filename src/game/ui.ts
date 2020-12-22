@@ -32,7 +32,7 @@ export class towerSelection extends ex.ScreenElement
 
 		engine.add(this)
 		
-		let gun = new towerIcon(engine, 20, bottom-80, "gun (50)", unit.UnitType.gunTower, callbacks)
+		let gun = new towerIcon(engine, 20, bottom-80, "gun (150)", unit.UnitType.gunTower, callbacks)
 		engine.add(gun)
 
 		let drill = new towerIcon(engine, 120, bottom-80, "driller (50)", unit.UnitType.drilTower, callbacks)
@@ -53,11 +53,11 @@ export class towerSelection extends ex.ScreenElement
 		ctx.fillStyle = 'rgba(150, 150, 150, .5)'
 		ctx.fillRect(0, this.bottom-this.height, this.right, this.height)
         ctx.fillStyle = "#FEF"
-        ctx.font = "32px Arial"
+        ctx.font = "22px Arial"
         let collection = this.callbacks.getPlayerResources()
 		if (this.maximumScore < collection.points) { this.maximumScore = collection.points }
         ctx.fillText(`Resources: ${collection.resources} Points: ${collection.points} Max: ${this.maximumScore}`,
-            this.right-500, this.bottom-15)
+            this.right-550, this.bottom-15)
 	}
 	
 	onInitialize()
